@@ -6,6 +6,7 @@ import { ResultCard } from '@/components/formula/ResultCard';
 import { QueryInput } from '@/components/formula/QueryInput';
 import { HistoryPanel } from '@/components/formula/HistoryPanel';
 import { FormulaResult, HistoryItem } from '@/components/formula/types';
+import Icon from '@/components/ui/icon';
 
 export default function Index() {
   const [query, setQuery] = useState('');
@@ -186,16 +187,28 @@ export default function Index() {
             </div>
           )}
 
-          <QueryInput
-            query={query}
-            isLoading={isLoading}
-            uploadedFile={uploadedFile}
-            onQueryChange={setQuery}
-            onConvert={handleConvert}
-            onClear={handleClear}
-            onFileUpload={handleFileUpload}
-            onRemoveFile={handleRemoveFile}
-          />
+          {!result || isLoading ? (
+            <QueryInput
+              query={query}
+              isLoading={isLoading}
+              uploadedFile={uploadedFile}
+              onQueryChange={setQuery}
+              onConvert={handleConvert}
+              onClear={handleClear}
+              onFileUpload={handleFileUpload}
+              onRemoveFile={handleRemoveFile}
+            />
+          ) : (
+            <div className="flex justify-center">
+              <button
+                onClick={() => setResult(null)}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 shadow-sm hover:shadow"
+              >
+                <Icon name="Pencil" size={16} className="text-slate-600" />
+                <span className="text-sm font-medium text-slate-700">Изменить запрос</span>
+              </button>
+            </div>
+          )}
 
           <HistoryPanel
             history={history}
