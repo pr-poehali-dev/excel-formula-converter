@@ -167,19 +167,18 @@ export default function Index() {
                 <CardContent className="p-8 space-y-6">
                   {result.formula && result.formula.startsWith('=') ? (
                     <>
-                      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                      <div className="relative bg-slate-900 p-6 pr-14 rounded-2xl border border-slate-800 group">
                         <code className="text-base font-mono text-green-400 break-all">
                           {result.formula}
                         </code>
+                        <button
+                          onClick={handleCopy}
+                          className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors"
+                          title="Скопировать формулу"
+                        >
+                          <Icon name="Copy" size={18} className="text-slate-300" />
+                        </button>
                       </div>
-                      
-                      <Button
-                        onClick={handleCopy}
-                        className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
-                      >
-                        <Icon name="Copy" size={18} className="mr-2" />
-                        Скопировать формулу
-                      </Button>
 
                       {result.explanation && (
                         <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
