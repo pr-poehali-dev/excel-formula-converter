@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/formula/PageHeader';
 import { ResultCard } from '@/components/formula/ResultCard';
@@ -13,6 +14,8 @@ export default function Index() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [language] = useState<'ru' | 'en'>('ru');
   const [copied, setCopied] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [excelData, setExcelData] = useState<any>(null);
 
   const { toast } = useToast();
 
@@ -75,7 +78,8 @@ export default function Index() {
         },
         body: JSON.stringify({ 
           query, 
-          language
+          language,
+          excelData: excelData || null
         }),
       });
 
@@ -123,6 +127,47 @@ export default function Index() {
     setResult(null);
   };
 
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+      toast({
+        title: 'Ошибка',
+        description: 'Пожалуйста, загрузите файл формата XLS или XLSX',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadedFile(file);
+    
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const data = e.target?.result;
+      const wb = XLSX.read(data, { type: 'binary' });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+      setExcelData(jsonData.slice(0, 20));
+    };
+    reader.readAsBinaryString(file);
+
+    toast({
+      title: 'Файл загружен',
+      description: `${file.name} - данные будут учтены при создании формулы`,
+    });
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    setExcelData(null);
+    toast({
+      title: 'Файл удалён',
+      description: 'Формулы будут создаваться без контекста файла',
+    });
+  };
+
 
 
   return (
@@ -144,9 +189,12 @@ export default function Index() {
           <QueryInput
             query={query}
             isLoading={isLoading}
+            uploadedFile={uploadedFile}
             onQueryChange={setQuery}
             onConvert={handleConvert}
             onClear={handleClear}
+            onFileUpload={handleFileUpload}
+            onRemoveFile={handleRemoveFile}
           />
 
           <HistoryPanel
