@@ -89,12 +89,24 @@ export default function Index() {
     setIsLoading(true);
     
     try {
+      let excelData = null;
+      if (workbook) {
+        const ws = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
+        excelData = jsonData.slice(0, 10);
+      }
+
       const response = await fetch('https://functions.poehali.dev/12cba3b7-c7f4-4a93-b6ae-380062983a1f', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query, language }),
+        body: JSON.stringify({ 
+          query, 
+          language,
+          excelData,
+          hasExcel: !!workbook
+        }),
       });
 
       if (!response.ok) {
@@ -110,20 +122,29 @@ export default function Index() {
       setResult(formulaResult);
       saveToHistory(query, formulaResult);
 
-      if (workbook && data.formula) {
+      if (workbook && data.cellUpdates) {
         const ws = workbook.Sheets[workbook.SheetNames[0]];
-        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-        const newRow = range.e.r + 2;
-        XLSX.utils.sheet_add_aoa(ws, [[data.formula]], { origin: `A${newRow}` });
-        ws['!ref'] = XLSX.utils.encode_range({
-          s: range.s,
-          e: { r: newRow, c: Math.max(range.e.c, 0) }
+        
+        data.cellUpdates.forEach((update: { cell: string; value: string | number }) => {
+          ws[update.cell] = { 
+            t: typeof update.value === 'string' && update.value.startsWith('=') ? 'n' : 's',
+            f: typeof update.value === 'string' && update.value.startsWith('=') ? update.value.substring(1) : undefined,
+            v: update.value 
+          };
         });
+
+        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
+        data.cellUpdates.forEach((update: { cell: string }) => {
+          const cellRef = XLSX.utils.decode_cell(update.cell);
+          range.e.r = Math.max(range.e.r, cellRef.r);
+          range.e.c = Math.max(range.e.c, cellRef.c);
+        });
+        ws['!ref'] = XLSX.utils.encode_range(range);
       }
       
       toast({
         title: 'Готово!',
-        description: workbook ? 'Формула добавлена в Excel файл' : 'Формула успешно создана',
+        description: workbook ? 'Excel файл обновлён согласно запросу' : 'Формула успешно создана',
       });
     } catch (error) {
       toast({

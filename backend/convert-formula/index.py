@@ -51,6 +51,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     body_data = json.loads(event.get('body', '{}'))
     user_query = body_data.get('query', '')
     language = body_data.get('language', 'ru')
+    excel_data = body_data.get('excelData', None)
+    has_excel = body_data.get('hasExcel', False)
     
     if not user_query:
         return {
@@ -64,7 +66,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
     
     if language == 'ru':
-        system_prompt = '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
+        if has_excel and excel_data:
+            system_prompt = f'''Ты эксперт по Excel. У пользователя есть Excel файл с данными. Выполни его запрос, изменив данные в файле.
+
+Первые строки файла:
+{json.dumps(excel_data, ensure_ascii=False)}
+
+Твоя задача:
+1. Понять запрос пользователя
+2. Определить какие ячейки нужно изменить или добавить
+3. Вернуть список обновлений ячеек
+
+Ответ в формате JSON:
+{{
+  "formula": "краткое описание что было сделано",
+  "explanation": "подробное объяснение изменений",
+  "cellUpdates": [
+    {{"cell": "D1", "value": "Итого"}},
+    {{"cell": "D2", "value": "=B2*C2"}},
+    {{"cell": "D3", "value": "=B3*C3"}}
+  ],
+  "functions": [{{"name": "название функции", "description": "описание"}}]
+}}
+
+Используй РУССКИЕ названия функций (СУММ, ЕСЛИ, СРЗНАЧ).
+Если нужно добавить новый столбец - начни с заголовка.
+Если нужно применить формулу ко всем строкам - создай cellUpdates для каждой строки с данными.'''
+        else:
+            system_prompt = '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
 
 ВАЖНО: Когда пользователь говорит "столбец A" или "столбец T" - это означает ВСЕ ЯЧЕЙКИ столбца (A:A, T:T), а НЕ одну ячейку (A1, T1).
 Для сравнения столбцов используй диапазоны типа A:A, B:B или A2:A100, B2:B100 (если нужно исключить заголовки).
@@ -88,7 +117,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 }
 ОБЯЗАТЕЛЬНО используй РУССКИЕ названия функций (например СУММ вместо SUM, ЕСЛИ вместо IF, СРЗНАЧ вместо AVERAGE).'''
     else:
-        system_prompt = '''You are an Excel formula expert. Convert user query into a ready-to-use Excel formula.
+        if has_excel and excel_data:
+            system_prompt = f'''You are an Excel expert. The user has an Excel file with data. Execute their request by modifying the file data.
+
+First rows of the file:
+{json.dumps(excel_data, ensure_ascii=False)}
+
+Your task:
+1. Understand the user's request
+2. Determine which cells need to be changed or added
+3. Return a list of cell updates
+
+Response in JSON format:
+{{
+  "formula": "brief description of what was done",
+  "explanation": "detailed explanation of changes",
+  "cellUpdates": [
+    {{"cell": "D1", "value": "Total"}},
+    {{"cell": "D2", "value": "=B2*C2"}},
+    {{"cell": "D3", "value": "=B3*C3"}}
+  ],
+  "functions": [{{"name": "function name", "description": "description"}}]
+}}
+
+Use ENGLISH function names (SUM, IF, AVERAGE).
+If you need to add a new column - start with the header.
+If you need to apply a formula to all rows - create cellUpdates for each data row.'''
+        else:
+            system_prompt = '''You are an Excel formula expert. Convert user query into a ready-to-use Excel formula.
 
 IMPORTANT: When user says "column A" or "column T" - it means ALL CELLS in that column (A:A, T:T), NOT a single cell (A1, T1).
 For comparing columns, use ranges like A:A, B:B or A2:A100, B2:B100 (if you need to exclude headers).
@@ -169,6 +225,7 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
                     'formula': result.get('formula', content),
                     'explanation': result.get('explanation', ''),
                     'functions': result.get('functions', []),
+                    'cellUpdates': result.get('cellUpdates', None),
                     'request_id': context.request_id
                 })
             }
