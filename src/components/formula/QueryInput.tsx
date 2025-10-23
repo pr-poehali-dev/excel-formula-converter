@@ -2,48 +2,26 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
-import { FileUpload } from './FileUpload';
 
 interface QueryInputProps {
   query: string;
   isLoading: boolean;
-  uploadedFile: File | null;
-  workbook: any;
-  isProcessed: boolean;
   onQueryChange: (value: string) => void;
   onConvert: () => void;
   onClear: () => void;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onRemoveFile: () => void;
-  onDownloadExcel: () => void;
 }
 
 export function QueryInput({
   query,
   isLoading,
-  uploadedFile,
-  workbook,
-  isProcessed,
   onQueryChange,
   onConvert,
-  onClear,
-  onFileUpload,
-  onRemoveFile,
-  onDownloadExcel
+  onClear
 }: QueryInputProps) {
   return (
     <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
       <CardContent className="p-4 sm:p-6 md:p-8">
         <div className="space-y-6">
-          <FileUpload
-            uploadedFile={uploadedFile}
-            workbook={workbook}
-            isProcessed={isProcessed}
-            onFileUpload={onFileUpload}
-            onRemoveFile={onRemoveFile}
-            onDownloadExcel={onDownloadExcel}
-          />
-
           <Textarea
             placeholder="Опишите задачу для Excel..."
             value={query}

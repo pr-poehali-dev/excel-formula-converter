@@ -4,37 +4,18 @@ import { FormulaResult } from './types';
 
 interface ResultCardProps {
   result: FormulaResult;
-  workbook: any;
   copied: boolean;
   onCopy: () => void;
 }
 
-export function ResultCard({ result, workbook, copied, onCopy }: ResultCardProps) {
+export function ResultCard({ result, copied, onCopy }: ResultCardProps) {
   return (
     <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
       <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent px-4 py-3 sm:px-6 sm:py-4">
         <CardTitle className="text-base sm:text-lg font-semibold text-slate-900">Результат</CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
-        {workbook && result.cellUpdates && result.cellUpdates.length > 0 ? (
-          <div className="bg-green-50/50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-green-200">
-            <div className="flex items-start gap-2 sm:gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
-                <Icon name="CheckCircle" size={14} className="text-white sm:w-4 sm:h-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-1 sm:mb-2">Файл обновлён</h4>
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-2">
-                  {result.explanation || result.formula}
-                </p>
-                <div className="flex items-center gap-2 text-xs text-slate-600">
-                  <Icon name="Table" size={12} />
-                  <span>Обновлено ячеек: {result.cellUpdates.length}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : result.formula && result.formula.startsWith('=') ? (
+        {result.formula && result.formula.startsWith('=') ? (
           <>
             <div className="relative bg-slate-900 p-3 pr-12 sm:p-4 sm:pr-14 md:p-6 md:pr-16 rounded-xl sm:rounded-2xl border border-slate-800 group">
               <code className="text-xs sm:text-sm md:text-base font-mono text-green-400 break-all">

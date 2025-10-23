@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { PageHeader } from '@/components/formula/PageHeader';
 import { ResultCard } from '@/components/formula/ResultCard';
@@ -14,9 +13,7 @@ export default function Index() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [language] = useState<'ru' | 'en'>('ru');
   const [copied, setCopied] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
-  const [isProcessed, setIsProcessed] = useState(false);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,16 +66,8 @@ export default function Index() {
     }
 
     setIsLoading(true);
-    setIsProcessed(false);
     
     try {
-      let excelData = null;
-      if (workbook) {
-        const ws = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(ws, { header: 1 });
-        excelData = jsonData.slice(0, 10);
-      }
-
       const response = await fetch('https://functions.poehali.dev/12cba3b7-c7f4-4a93-b6ae-380062983a1f', {
         method: 'POST',
         headers: {
@@ -86,9 +75,7 @@ export default function Index() {
         },
         body: JSON.stringify({ 
           query, 
-          language,
-          excelData,
-          hasExcel: !!workbook
+          language
         }),
       });
 
@@ -100,36 +87,14 @@ export default function Index() {
       const formulaResult: FormulaResult = {
         formula: data.formula,
         explanation: data.explanation || '',
-        functions: data.functions || [],
-        cellUpdates: data.cellUpdates || undefined,
+        functions: data.functions || []
       };
       setResult(formulaResult);
       saveToHistory(query, formulaResult);
-
-      if (workbook && data.cellUpdates && data.cellUpdates.length > 0) {
-        setIsProcessed(true);
-        const ws = workbook.Sheets[workbook.SheetNames[0]];
-        
-        data.cellUpdates.forEach((update: { cell: string; value: string | number }) => {
-          ws[update.cell] = { 
-            t: typeof update.value === 'string' && update.value.startsWith('=') ? 'n' : 's',
-            f: typeof update.value === 'string' && update.value.startsWith('=') ? update.value.substring(1) : undefined,
-            v: update.value 
-          };
-        });
-
-        const range = XLSX.utils.decode_range(ws['!ref'] || 'A1');
-        data.cellUpdates.forEach((update: { cell: string }) => {
-          const cellRef = XLSX.utils.decode_cell(update.cell);
-          range.e.r = Math.max(range.e.r, cellRef.r);
-          range.e.c = Math.max(range.e.c, cellRef.c);
-        });
-        ws['!ref'] = XLSX.utils.encode_range(range);
-      }
       
       toast({
         title: 'Готово!',
-        description: workbook ? 'Excel файл обновлён согласно запросу' : 'Формула успешно создана',
+        description: 'Формула успешно создана',
       });
     } catch (error) {
       toast({
@@ -158,69 +123,7 @@ export default function Index() {
     setResult(null);
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
 
-    const validTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
-    if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
-      toast({
-        title: 'Ошибка',
-        description: 'Пожалуйста, загрузите файл формата XLS или XLSX',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setUploadedFile(file);
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const data = e.target?.result;
-      const wb = XLSX.read(data, { type: 'binary' });
-      setWorkbook(wb);
-    };
-    reader.readAsBinaryString(file);
-
-    toast({
-      title: 'Файл загружен',
-      description: file.name,
-    });
-  };
-
-  const handleRemoveFile = () => {
-    setUploadedFile(null);
-    setWorkbook(null);
-    setIsProcessed(false);
-  };
-
-  const handleDownloadExcel = () => {
-    if (!workbook) return;
-
-    const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' });
-    
-    const s2ab = (s: string) => {
-      const buf = new ArrayBuffer(s.length);
-      const view = new Uint8Array(buf);
-      for (let i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-      return buf;
-    };
-
-    const blob = new Blob([s2ab(wbout)], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `обработанный_${uploadedFile?.name || 'файл.xlsx'}`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-
-    toast({
-      title: 'Файл загружен',
-      description: 'Excel файл успешно сохранён',
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
@@ -232,7 +135,6 @@ export default function Index() {
             <div className="space-y-6 animate-fade-in">
               <ResultCard
                 result={result}
-                workbook={workbook}
                 copied={copied}
                 onCopy={handleCopy}
               />
@@ -242,15 +144,9 @@ export default function Index() {
           <QueryInput
             query={query}
             isLoading={isLoading}
-            uploadedFile={uploadedFile}
-            workbook={workbook}
-            isProcessed={isProcessed}
             onQueryChange={setQuery}
             onConvert={handleConvert}
             onClear={handleClear}
-            onFileUpload={handleFileUpload}
-            onRemoveFile={handleRemoveFile}
-            onDownloadExcel={handleDownloadExcel}
           />
 
           <HistoryPanel

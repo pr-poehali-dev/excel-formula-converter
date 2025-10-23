@@ -7,7 +7,6 @@ export interface FormulaResult {
   formula: string;
   explanation: string;
   functions: FunctionInfo[];
-  cellUpdates?: Array<{ cell: string; value: string | number }>;
 }
 
 export interface HistoryItem {
