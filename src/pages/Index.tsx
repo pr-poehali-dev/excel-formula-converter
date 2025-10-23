@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
@@ -137,221 +136,182 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-3">
-              <Icon name="Sheet" size={40} className="text-primary" />
-              <div>
-                <h1 className="text-4xl font-semibold text-foreground">Excel Formula Converter</h1>
-                <p className="text-muted-foreground text-lg">
-                  Превратите свой запрос в формулу Excel с помощью AI
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 bg-card border border-border rounded-lg p-1">
-              <Button
-                variant={language === 'ru' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('ru')}
-                className="text-xs"
-              >
-                <Icon name="Languages" size={14} className="mr-1" />
-                Русский
-              </Button>
-              <Button
-                variant={language === 'en' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('en')}
-                className="text-xs"
-              >
-                <Icon name="Languages" size={14} className="mr-1" />
-                English
-              </Button>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      <div className="container max-w-4xl mx-auto px-6 py-16">
+        <div className="mb-16 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 mb-6 rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 apple-shadow-lg">
+            <Icon name="FunctionSquare" size={36} className="text-white" />
+          </div>
+          <h1 className="text-6xl font-semibold text-slate-900 mb-4 tracking-tight">
+            Formula AI
+          </h1>
+          <p className="text-xl text-slate-600 font-light max-w-2xl mx-auto">
+            Превращайте идеи в формулы Excel мгновенно
+          </p>
+          
+          <div className="inline-flex items-center gap-1 mt-8 bg-white/60 apple-glass border border-slate-200/60 rounded-full p-1.5 apple-shadow">
+            <button
+              onClick={() => setLanguage('ru')}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                language === 'ru' 
+                  ? 'bg-white text-slate-900 shadow-sm' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Русский
+            </button>
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+                language === 'en' 
+                  ? 'bg-white text-slate-900 shadow-sm' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              English
+            </button>
           </div>
         </div>
 
-        <div className="grid gap-6">
-          <Card className="shadow-sm border-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Icon name="MessageSquare" size={20} />
-                Введите запрос
-              </CardTitle>
-              <CardDescription>
-                Опишите задачу, которую нужно решить в Excel
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+        <div className="space-y-6">
+          <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
+            <CardContent className="p-8">
+              <div className="space-y-6">
                 <Textarea
-                  placeholder="Например: суммировать все значения в столбце A с 1 по 10 строку"
+                  placeholder="Опишите задачу для Excel..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="min-h-[120px] resize-none font-normal"
+                  className="min-h-[140px] resize-none text-base border-slate-200 focus:border-blue-500 rounded-2xl bg-white/80 px-5 py-4"
                 />
                 <div className="flex gap-3">
                   <Button
                     onClick={handleConvert}
                     disabled={isLoading}
-                    className="flex items-center gap-2"
-                    size="lg"
+                    className="flex-1 h-14 text-base font-medium bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg shadow-blue-500/30 transition-all duration-200"
                   >
-                    <Icon name="Sparkles" size={18} />
-                    {isLoading ? 'Конвертация...' : 'Конвертировать'}
+                    {isLoading ? (
+                      <>
+                        <Icon name="Loader2" size={20} className="mr-2 animate-spin" />
+                        Создание формулы...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="Sparkles" size={20} className="mr-2" />
+                        Создать формулу
+                      </>
+                    )}
                   </Button>
-                  <Button
-                    onClick={handleClear}
-                    variant="outline"
-                    size="lg"
-                  >
-                    <Icon name="X" size={18} />
-                    Очистить
-                  </Button>
+                  {query && (
+                    <Button
+                      onClick={handleClear}
+                      variant="outline"
+                      className="h-14 px-6 rounded-2xl border-slate-300 hover:bg-slate-100"
+                    >
+                      <Icon name="X" size={20} />
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
           </Card>
 
           {result && (
-            <Card className="shadow-sm border-border animate-fade-in">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Icon name="FileSpreadsheet" size={20} />
-                  Результат
-                </CardTitle>
-                <CardDescription>
-                  Готовая формула для Excel
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-md border border-border">
-                    <code className="text-sm font-mono text-foreground break-all">
+            <div className="space-y-6 animate-fade-in">
+              <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
+                <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent">
+                  <CardTitle className="text-lg font-semibold text-slate-900">Результат</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <code className="text-base font-mono text-green-400 break-all">
                       {result.formula}
                     </code>
                   </div>
                   
+                  <Button
+                    onClick={handleCopy}
+                    className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
+                  >
+                    <Icon name="Copy" size={18} className="mr-2" />
+                    Скопировать формулу
+                  </Button>
+
                   {result.explanation && (
-                    <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-start gap-2">
-                        <Icon name="Info" size={18} className="text-primary mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-sm font-semibold text-foreground mb-1">Объяснение</h4>
-                          <p className="text-sm text-muted-foreground">{result.explanation}</p>
+                    <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <Icon name="Lightbulb" size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-slate-900 mb-2">Как это работает</h4>
+                          <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
                         </div>
                       </div>
                     </div>
                   )}
 
                   {result.functions && result.functions.length > 0 && (
-                    <div className="border border-border rounded-md p-4">
-                      <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                        <Icon name="FunctionSquare" size={18} className="text-primary" />
-                        Используемые функции
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                        <Icon name="Code2" size={18} className="text-blue-500" />
+                        Функции в формуле
                       </h4>
                       <div className="space-y-3">
                         {result.functions.map((func, index) => (
-                          <div key={index} className="flex gap-3">
-                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
-                              <span className="text-xs font-medium text-primary">{index + 1}</span>
+                          <div key={index} className="flex gap-4 p-4 bg-white rounded-xl border border-slate-200">
+                            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-sm font-semibold text-blue-600">{index + 1}</span>
                             </div>
-                            <div className="flex-1">
-                              <div className="text-sm font-medium text-foreground">{func.name}</div>
-                              <div className="text-xs text-muted-foreground mt-0.5">{func.description}</div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-semibold text-slate-900 mb-1">{func.name}</div>
+                              <div className="text-sm text-slate-600 leading-relaxed">{func.description}</div>
                             </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-
-                  <Button
-                    onClick={handleCopy}
-                    variant="secondary"
-                    className="flex items-center gap-2"
-                    size="lg"
-                  >
-                    <Icon name="Copy" size={18} />
-                    Скопировать формулу
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           )}
 
           {history.length > 0 && (
-            <Card className="shadow-sm border-border">
-              <CardHeader>
+            <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow overflow-hidden">
+              <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2">
-                    <Icon name="History" size={20} />
-                    История запросов
+                  <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                    <Icon name="History" size={20} className="text-slate-400" />
+                    История
                   </CardTitle>
-                  <Button
+                  <button
                     onClick={clearHistory}
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-sm text-slate-500 hover:text-slate-900 transition-colors"
                   >
-                    <Icon name="Trash2" size={16} />
-                  </Button>
+                    Очистить
+                  </button>
                 </div>
-                <CardDescription>
-                  Последние {history.length} {history.length === 1 ? 'запрос' : 'запросов'}
-                </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <div className="space-y-2">
                   {history.map((item) => (
-                    <div
+                    <button
                       key={item.id}
                       onClick={() => loadFromHistory(item)}
-                      className="p-3 border border-border rounded-md hover:bg-muted cursor-pointer transition-colors"
+                      className="w-full text-left p-4 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 transition-all duration-200 group"
                     >
-                      <div className="text-sm font-medium text-foreground mb-1">
+                      <div className="text-sm font-medium text-slate-900 mb-1 group-hover:text-blue-600 transition-colors">
                         {item.query}
                       </div>
-                      <code className="text-xs font-mono text-muted-foreground">
+                      <code className="text-xs font-mono text-slate-500">
                         {item.formula}
                       </code>
-                    </div>
+                    </button>
                   ))}
                 </div>
               </CardContent>
             </Card>
           )}
-
-          <Card className="shadow-sm border-border bg-card/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Icon name="Info" size={18} />
-                Примеры запросов
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex gap-2">
-                  <Icon name="ChevronRight" size={16} className="mt-0.5 text-primary flex-shrink-0" />
-                  <span>Посчитать среднее значение чисел в диапазоне B2:B20</span>
-                </li>
-                <li className="flex gap-2">
-                  <Icon name="ChevronRight" size={16} className="mt-0.5 text-primary flex-shrink-0" />
-                  <span>Найти максимальное значение в столбце C</span>
-                </li>
-                <li className="flex gap-2">
-                  <Icon name="ChevronRight" size={16} className="mt-0.5 text-primary flex-shrink-0" />
-                  <span>Если значение в A1 больше 100, вернуть "Да", иначе "Нет"</span>
-                </li>
-                <li className="flex gap-2">
-                  <Icon name="ChevronRight" size={16} className="mt-0.5 text-primary flex-shrink-0" />
-                  <span>Объединить текст из ячеек D1 и E1 через пробел</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
