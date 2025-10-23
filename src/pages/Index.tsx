@@ -5,6 +5,7 @@ import { PageHeader } from '@/components/formula/PageHeader';
 import { ResultCard } from '@/components/formula/ResultCard';
 import { QueryInput } from '@/components/formula/QueryInput';
 import { HistoryPanel } from '@/components/formula/HistoryPanel';
+import { MagicAnimation } from '@/components/formula/MagicAnimation';
 import { FormulaResult, HistoryItem } from '@/components/formula/types';
 import Icon from '@/components/ui/icon';
 
@@ -173,6 +174,8 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
+      {isLoading && <MagicAnimation />}
+      
       <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <PageHeader />
 
