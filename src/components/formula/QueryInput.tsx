@@ -60,12 +60,17 @@ export function QueryInput({
               />
               <label
                 htmlFor="excel-upload"
-                className="flex items-center justify-center gap-2 p-3 sm:p-4 border-2 border-dashed border-slate-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                className="flex flex-col items-center justify-center gap-2 p-4 sm:p-5 border-2 border-dashed border-slate-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group"
               >
-                <Icon name="Upload" size={16} className="text-slate-400 group-hover:text-blue-500 sm:w-[18px] sm:h-[18px]" />
-                <span className="text-xs sm:text-sm text-slate-600 group-hover:text-blue-600 font-medium">
-                  Загрузить Excel файл (необязательно)
-                </span>
+                <div className="flex items-center gap-2">
+                  <Icon name="Upload" size={16} className="text-slate-400 group-hover:text-blue-500 sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm text-slate-600 group-hover:text-blue-600 font-semibold">
+                    Загрузить Excel файл для анализа
+                  </span>
+                </div>
+                <p className="text-xs text-slate-500 text-center">
+                  Я изучу структуру вашей таблицы и создам более точную формулу
+                </p>
               </label>
             </div>
           )}
