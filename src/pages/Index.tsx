@@ -149,9 +149,7 @@ export default function Index() {
               </div>
             </div>
           </div>
-          <h1 className="text-6xl font-semibold text-slate-900 mb-4 tracking-tight">
-            Formula AI
-          </h1>
+          <h1 className="text-6xl font-semibold text-slate-900 mb-4 tracking-tight">Формулл.Нет</h1>
           <p className="text-xl text-slate-600 font-light max-w-2xl mx-auto">
             Превращайте идеи в формулы Excel мгновенно
           </p>
