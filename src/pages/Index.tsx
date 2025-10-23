@@ -266,7 +266,21 @@ export default function Index() {
                   <CardTitle className="text-lg font-semibold text-slate-900">Результат</CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
-                  {result.formula && result.formula.startsWith('=') ? (
+                  {workbook ? (
+                    <div className="bg-green-50/50 p-6 rounded-2xl border border-green-200">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+                          <Icon name="CheckCircle" size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-slate-900 mb-2">{result.formula}</h4>
+                          {result.explanation && (
+                            <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : result.formula && result.formula.startsWith('=') ? (
                     <>
                       <div className="relative bg-slate-900 p-6 pr-14 rounded-2xl border border-slate-800 group">
                         <code className="text-base font-mono text-green-400 break-all">
