@@ -215,7 +215,55 @@ export default function Index() {
             </CardContent>
           </Card>
 
-          {result && (
+          {isLoading && (
+            <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
+              <CardContent className="p-8">
+                <div className="space-y-6">
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="relative mb-8">
+                      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 animate-float animate-glow flex items-center justify-center">
+                        <Icon name="Sparkles" size={32} className="text-white" />
+                      </div>
+                    </div>
+                    
+                    <div className="text-center space-y-3 mb-8">
+                      <h3 className="text-lg font-semibold text-slate-900">Создаю формулу...</h3>
+                      <p className="text-sm text-slate-600">AI анализирует ваш запрос</p>
+                    </div>
+
+                    <div className="w-full max-w-md space-y-3">
+                      <div className="h-4 rounded-full animate-shimmer" />
+                      <div className="h-4 rounded-full animate-shimmer" style={{ animationDelay: '0.2s' }} />
+                      <div className="h-4 rounded-full animate-shimmer w-3/4" style={{ animationDelay: '0.4s' }} />
+                    </div>
+
+                    <div className="mt-12 flex items-center gap-6">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center animate-pulse-slow">
+                          <Icon name="Brain" size={20} className="text-blue-600" />
+                        </div>
+                        <span className="text-xs text-slate-500">Анализ</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center animate-pulse-slow" style={{ animationDelay: '0.3s' }}>
+                          <Icon name="Code2" size={20} className="text-blue-600" />
+                        </div>
+                        <span className="text-xs text-slate-500">Генерация</span>
+                      </div>
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center animate-pulse-slow" style={{ animationDelay: '0.6s' }}>
+                          <Icon name="CheckCircle2" size={20} className="text-blue-600" />
+                        </div>
+                        <span className="text-xs text-slate-500">Проверка</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {result && !isLoading && (
             <div className="space-y-6 animate-fade-in">
               <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
                 <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent">
