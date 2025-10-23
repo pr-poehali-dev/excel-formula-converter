@@ -1,12 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 import { FormulaResult } from './types';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 interface ResultCardProps {
   result: FormulaResult;
@@ -65,24 +59,21 @@ export function ResultCard({ result, copied, onCopy }: ResultCardProps) {
                     <Icon name="FunctionSquare" size={14} className="text-white sm:w-4 sm:h-4" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-2 sm:mb-3">Используемые функции</h4>
-                    <TooltipProvider>
-                      <div className="flex flex-wrap gap-2">
-                        {result.functions.map((func, index) => (
-                          <Tooltip key={index} delayDuration={200}>
-                            <TooltipTrigger asChild>
-                              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white rounded-lg border border-purple-200 hover:border-purple-400 hover:shadow-sm transition-all duration-200 cursor-help">
-                                <Icon name="Zap" size={12} className="text-purple-500" />
-                                <span className="text-xs font-medium text-slate-900">{func.name}</span>
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="top" className="max-w-xs">
-                              <p className="text-sm">{func.description}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        ))}
-                      </div>
-                    </TooltipProvider>
+                    <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-3 sm:mb-4">Используемые функции</h4>
+                    <div className="space-y-3">
+                      {result.functions.map((func, index) => (
+                        <div key={index} className="flex items-start gap-2.5">
+                          <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="inline-flex items-center gap-1.5 mb-1">
+                              <Icon name="Zap" size={12} className="text-purple-500 flex-shrink-0" />
+                              <span className="text-xs sm:text-sm font-semibold text-slate-900">{func.name}</span>
+                            </div>
+                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{func.description}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
