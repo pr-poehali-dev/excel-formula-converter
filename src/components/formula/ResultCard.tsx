@@ -16,11 +16,43 @@ export function ResultCard({ result, workbook, copied, onCopy }: ResultCardProps
         <CardTitle className="text-base sm:text-lg font-semibold text-slate-900">Результат</CardTitle>
       </CardHeader>
       <CardContent className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6">
-        {workbook ? (
+        {workbook && result.cellUpdates ? (
           <div className="bg-green-50/50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-green-200">
             <div className="flex items-start gap-2 sm:gap-3">
               <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
                 <Icon name="CheckCircle" size={14} className="text-white sm:w-4 sm:h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-1 sm:mb-2">{result.formula}</h4>
+                {result.explanation && (
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mb-3">{result.explanation}</p>
+                )}
+                {result.cellUpdates && result.cellUpdates.length > 0 && (
+                  <div className="mt-3 p-3 bg-white/60 rounded-lg border border-green-300/50">
+                    <p className="text-xs font-medium text-slate-700 mb-2">
+                      <Icon name="Table" size={12} className="inline mr-1" />
+                      Обновлено ячеек: {result.cellUpdates.length}
+                    </p>
+                    <div className="flex flex-wrap gap-1">
+                      {result.cellUpdates.slice(0, 10).map((update, idx) => (
+                        <code key={idx} className="text-[10px] sm:text-xs px-1.5 py-0.5 bg-green-100 text-green-800 rounded font-mono">
+                          {update.cell}
+                        </code>
+                      ))}
+                      {result.cellUpdates.length > 10 && (
+                        <span className="text-[10px] sm:text-xs text-slate-500 px-1.5">+{result.cellUpdates.length - 10}</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : workbook && !result.cellUpdates ? (
+          <div className="bg-yellow-50/50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-yellow-200">
+            <div className="flex items-start gap-2 sm:gap-3">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0">
+                <Icon name="AlertCircle" size={14} className="text-white sm:w-4 sm:h-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs sm:text-sm font-semibold text-slate-900 mb-1 sm:mb-2">{result.formula}</h4>

@@ -101,11 +101,12 @@ export default function Index() {
         formula: data.formula,
         explanation: data.explanation || '',
         functions: data.functions || [],
+        cellUpdates: data.cellUpdates || undefined,
       };
       setResult(formulaResult);
       saveToHistory(query, formulaResult);
 
-      if (workbook && data.cellUpdates) {
+      if (workbook && data.cellUpdates && data.cellUpdates.length > 0) {
         setIsProcessed(true);
         const ws = workbook.Sheets[workbook.SheetNames[0]];
         
