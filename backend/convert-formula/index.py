@@ -65,6 +65,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if language == 'ru':
         system_prompt = '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
+
+ВАЖНО: Когда пользователь говорит "столбец A" или "столбец T" - это означает ВСЕ ЯЧЕЙКИ столбца (A:A, T:T), а НЕ одну ячейку (A1, T1).
+Для сравнения столбцов используй диапазоны типа A:A, B:B или A2:A100, B2:B100 (если нужно исключить заголовки).
+Для формул массива с целыми столбцами используй A:A вместо A1.
+
+Примеры:
+- "сравнить столбец A и столбец B" → используй A:A и B:B, формула для всего столбца
+- "сумма столбца A" → используй A:A или A2:A1000
+- "если в A есть текст, то из B" → используй диапазоны A:A и B:B
+
 Ответ должен быть в формате JSON:
 {
   "formula": "формула начинающаяся с =",
@@ -79,6 +89,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 ОБЯЗАТЕЛЬНО используй РУССКИЕ названия функций (например СУММ вместо SUM, ЕСЛИ вместо IF, СРЗНАЧ вместо AVERAGE).'''
     else:
         system_prompt = '''You are an Excel formula expert. Convert user query into a ready-to-use Excel formula.
+
+IMPORTANT: When user says "column A" or "column T" - it means ALL CELLS in that column (A:A, T:T), NOT a single cell (A1, T1).
+For comparing columns, use ranges like A:A, B:B or A2:A100, B2:B100 (if you need to exclude headers).
+For array formulas with entire columns, use A:A instead of A1.
+
+Examples:
+- "compare column A and column B" → use A:A and B:B, formula for entire column
+- "sum of column A" → use A:A or A2:A1000
+- "if A contains text, then from B" → use ranges A:A and B:B
+
 Response must be in JSON format:
 {
   "formula": "formula starting with =",
