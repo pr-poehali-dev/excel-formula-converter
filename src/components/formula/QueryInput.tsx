@@ -28,6 +28,13 @@ export function QueryInput({
     <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
       <CardContent className="p-4 sm:p-6 md:p-8">
         <div className="space-y-6">
+          <Textarea
+            placeholder="Опишите задачу для Excel..."
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            className="min-h-[120px] sm:min-h-[140px] resize-none text-sm sm:text-base border-slate-200 focus:border-blue-500 rounded-xl sm:rounded-2xl bg-white/80 px-4 py-3 sm:px-5 sm:py-4"
+          />
+
           {uploadedFile && (
             <div className="bg-green-50/50 p-3 sm:p-4 rounded-xl border border-green-200">
               <div className="flex items-center gap-3">
@@ -74,13 +81,6 @@ export function QueryInput({
               </label>
             </div>
           )}
-
-          <Textarea
-            placeholder="Опишите задачу для Excel..."
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-            className="min-h-[120px] sm:min-h-[140px] resize-none text-sm sm:text-base border-slate-200 focus:border-blue-500 rounded-xl sm:rounded-2xl bg-white/80 px-4 py-3 sm:px-5 sm:py-4"
-          />
           <div className="flex gap-2 sm:gap-3">
             <Button
               onClick={onConvert}
