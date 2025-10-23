@@ -65,10 +65,7 @@ export function ResultCard({ result, copied, onCopy }: ResultCardProps) {
                         <div key={index} className="flex items-start gap-2.5">
                           <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
                           <div className="flex-1 min-w-0">
-                            <div className="inline-flex items-center gap-1.5 mb-1">
-                              <Icon name="Zap" size={12} className="text-purple-500 flex-shrink-0" />
-                              <span className="text-xs sm:text-sm font-semibold text-slate-900">{func.name}</span>
-                            </div>
+                            <span className="text-xs sm:text-sm font-semibold text-slate-900 block mb-1">{func.name}</span>
                             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{func.description}</p>
                           </div>
                         </div>
