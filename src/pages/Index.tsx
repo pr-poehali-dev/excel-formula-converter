@@ -321,9 +321,6 @@ export default function Index() {
             </Card>
           </div>
         )}
-
-
-        </div>
       </div>
     </div>
   );
