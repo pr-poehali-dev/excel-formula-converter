@@ -31,6 +31,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [language, setLanguage] = useState<'ru' | 'en'>('ru');
+  const [copied, setCopied] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -124,6 +125,8 @@ export default function Index() {
   const handleCopy = () => {
     if (!result) return;
     navigator.clipboard.writeText(result.formula);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
     toast({
       title: 'Скопировано',
       description: 'Формула скопирована в буфер обмена',
@@ -173,10 +176,18 @@ export default function Index() {
                         </code>
                         <button
                           onClick={handleCopy}
-                          className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center transition-colors"
-                          title="Скопировать формулу"
+                          className={`absolute top-4 right-4 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200 ${
+                            copied 
+                              ? 'bg-green-600 scale-110' 
+                              : 'bg-slate-800 hover:bg-slate-700'
+                          }`}
+                          title={copied ? 'Скопировано!' : 'Скопировать формулу'}
                         >
-                          <Icon name="Copy" size={18} className="text-slate-300" />
+                          <Icon 
+                            name={copied ? 'Check' : 'Copy'} 
+                            size={18} 
+                            className={copied ? 'text-white' : 'text-slate-300'}
+                          />
                         </button>
                       </div>
 
