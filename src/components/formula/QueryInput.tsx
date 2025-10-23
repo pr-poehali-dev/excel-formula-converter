@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
+import { useState } from 'react';
 
 interface QueryInputProps {
   query: string;
@@ -24,6 +25,41 @@ export function QueryInput({
   onFileUpload,
   onRemoveFile
 }: QueryInputProps) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.name.endsWith('.xls') || file.name.endsWith('.xlsx')) {
+        const fakeEvent = {
+          target: { files: [file] }
+        } as unknown as React.ChangeEvent<HTMLInputElement>;
+        onFileUpload(fakeEvent);
+      }
+    }
+  };
   return (
     <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
       <CardContent className="p-4 sm:p-6 md:p-8">
@@ -67,16 +103,24 @@ export function QueryInput({
               />
               <label
                 htmlFor="excel-upload"
-                className="flex flex-col items-center justify-center gap-2 p-4 sm:p-5 border-2 border-dashed border-slate-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group"
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                className={`flex flex-col items-center justify-center gap-2 p-4 sm:p-5 border-2 border-dashed rounded-xl transition-all cursor-pointer group ${
+                  isDragging 
+                    ? 'border-blue-500 bg-blue-50/50 scale-[1.02]' 
+                    : 'border-slate-300 hover:border-blue-400 hover:bg-blue-50/30'
+                }`}
               >
                 <div className="flex items-center gap-2">
-                  <Icon name="Upload" size={16} className="text-slate-400 group-hover:text-blue-500 sm:w-[18px] sm:h-[18px]" />
-                  <span className="text-xs sm:text-sm text-slate-600 group-hover:text-blue-600 font-semibold">
-                    Загрузить Excel файл для анализа
+                  <Icon name="Upload" size={16} className={`sm:w-[18px] sm:h-[18px] ${isDragging ? 'text-blue-500' : 'text-slate-400 group-hover:text-blue-500'}`} />
+                  <span className={`text-xs sm:text-sm font-semibold ${isDragging ? 'text-blue-600' : 'text-slate-600 group-hover:text-blue-600'}`}>
+                    {isDragging ? 'Отпустите файл здесь' : 'Загрузить Excel файл для анализа'}
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 text-center">
-                  Я изучу структуру вашей таблицы и создам более точную формулу
+                  {isDragging ? 'Перетащите Excel файл' : 'Я изучу структуру вашей таблицы и создам более точную формулу'}
                 </p>
               </label>
             </div>
