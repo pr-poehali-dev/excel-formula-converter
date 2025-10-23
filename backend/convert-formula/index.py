@@ -67,31 +67,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     if language == 'ru':
         if has_excel and excel_data:
-            system_prompt = f'''Ты эксперт по Excel. У пользователя есть Excel файл с данными. Выполни его запрос, изменив данные в файле.
+            system_prompt = f'''Ты эксперт по Excel. У пользователя есть Excel файл с данными. Выполни его запрос ТОЧНО.
 
-Первые строки файла:
+Первые строки файла (массив массивов, где индекс 0 - строка 1, индекс 1 - строка 2 и т.д.):
 {json.dumps(excel_data, ensure_ascii=False)}
 
-Твоя задача:
-1. Понять запрос пользователя
-2. Определить какие ячейки нужно изменить или добавить
-3. Вернуть список обновлений ячеек
+КРИТИЧЕСКИ ВАЖНО:
+- Если запрос требует фильтрацию (например "найди четные", "только положительные", "больше 10") - НЕ копируй все значения!
+- Применяй условия СТРОГО: четное число делится на 2 без остатка (2, 4, 6, 8...), нечетное - нет (1, 3, 5, 7...)
+- Если ячейка не соответствует условию - НЕ добавляй её в cellUpdates
+- Используй формулы Excel с ЕСЛИ() для условной логики, либо заполняй только подходящие ячейки
+
+Столбцы обозначаются буквами: A, B, C, D...
+Строки начинаются с 1: A1 (столбец A, строка 1), B2 (столбец B, строка 2)
 
 Ответ в формате JSON:
 {{
   "formula": "краткое описание что было сделано",
-  "explanation": "подробное объяснение изменений",
+  "explanation": "подробное объяснение изменений с примерами",
   "cellUpdates": [
-    {{"cell": "D1", "value": "Итого"}},
-    {{"cell": "D2", "value": "=B2*C2"}},
-    {{"cell": "D3", "value": "=B3*C3"}}
+    {{"cell": "B2", "value": "=ЕСЛИ(ОСТАТ(A2;2)=0;A2;\\"\\")"}},
+    {{"cell": "B3", "value": "=ЕСЛИ(ОСТАТ(A3;2)=0;A3;\\"\\")"}},
   ],
-  "functions": [{{"name": "название функции", "description": "описание"}}]
+  "functions": [{{"name": "ЕСЛИ", "description": "проверяет условие"}}, {{"name": "ОСТАТ", "description": "остаток от деления"}}]
 }}
 
-Используй РУССКИЕ названия функций (СУММ, ЕСЛИ, СРЗНАЧ).
-Если нужно добавить новый столбец - начни с заголовка.
-Если нужно применить формулу ко всем строкам - создай cellUpdates для каждой строки с данными.'''
+Используй РУССКИЕ названия функций (СУММ, ЕСЛИ, ОСТАТ, СРЗНАЧ).
+Для проверки четности используй: ОСТАТ(число;2)=0 (четное) или ОСТАТ(число;2)<>0 (нечетное).
+Лучше использовать формулы с ЕСЛИ(), чем выбирать значения вручную - так формула будет работать для всех строк.'''
         else:
             system_prompt = '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
 
@@ -118,31 +121,34 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 ОБЯЗАТЕЛЬНО используй РУССКИЕ названия функций (например СУММ вместо SUM, ЕСЛИ вместо IF, СРЗНАЧ вместо AVERAGE).'''
     else:
         if has_excel and excel_data:
-            system_prompt = f'''You are an Excel expert. The user has an Excel file with data. Execute their request by modifying the file data.
+            system_prompt = f'''You are an Excel expert. The user has an Excel file with data. Execute their request PRECISELY.
 
-First rows of the file:
+First rows of the file (array of arrays, index 0 = row 1, index 1 = row 2, etc.):
 {json.dumps(excel_data, ensure_ascii=False)}
 
-Your task:
-1. Understand the user's request
-2. Determine which cells need to be changed or added
-3. Return a list of cell updates
+CRITICAL:
+- If the request requires filtering (e.g., "find even numbers", "only positive", "greater than 10") - DO NOT copy all values!
+- Apply conditions STRICTLY: even numbers divide by 2 with no remainder (2, 4, 6, 8...), odd numbers don't (1, 3, 5, 7...)
+- If a cell doesn't match the condition - DO NOT add it to cellUpdates
+- Use Excel formulas with IF() for conditional logic, or only fill cells that match
+
+Columns are letters: A, B, C, D...
+Rows start at 1: A1 (column A, row 1), B2 (column B, row 2)
 
 Response in JSON format:
 {{
   "formula": "brief description of what was done",
-  "explanation": "detailed explanation of changes",
+  "explanation": "detailed explanation with examples",
   "cellUpdates": [
-    {{"cell": "D1", "value": "Total"}},
-    {{"cell": "D2", "value": "=B2*C2"}},
-    {{"cell": "D3", "value": "=B3*C3"}}
+    {{"cell": "B2", "value": "=IF(MOD(A2,2)=0,A2,\\"\\")"}},
+    {{"cell": "B3", "value": "=IF(MOD(A3,2)=0,A3,\\"\\")"}},
   ],
-  "functions": [{{"name": "function name", "description": "description"}}]
+  "functions": [{{"name": "IF", "description": "checks condition"}}, {{"name": "MOD", "description": "remainder of division"}}]
 }}
 
-Use ENGLISH function names (SUM, IF, AVERAGE).
-If you need to add a new column - start with the header.
-If you need to apply a formula to all rows - create cellUpdates for each data row.'''
+Use ENGLISH function names (SUM, IF, MOD, AVERAGE).
+For even check use: MOD(number,2)=0 (even) or MOD(number,2)<>0 (odd).
+Better to use formulas with IF() than manually selecting values - formulas will work for all rows.'''
         else:
             system_prompt = '''You are an Excel formula expert. Convert user query into a ready-to-use Excel formula.
 
