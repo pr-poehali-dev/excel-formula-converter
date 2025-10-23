@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,11 +6,52 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
+interface HistoryItem {
+  id: string;
+  query: string;
+  formula: string;
+  timestamp: number;
+}
+
 export default function Index() {
   const [query, setQuery] = useState('');
   const [formula, setFormula] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('formulaHistory');
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+  }, []);
+
+  const saveToHistory = (userQuery: string, resultFormula: string) => {
+    const newItem: HistoryItem = {
+      id: Date.now().toString(),
+      query: userQuery,
+      formula: resultFormula,
+      timestamp: Date.now(),
+    };
+    const updatedHistory = [newItem, ...history].slice(0, 10);
+    setHistory(updatedHistory);
+    localStorage.setItem('formulaHistory', JSON.stringify(updatedHistory));
+  };
+
+  const loadFromHistory = (item: HistoryItem) => {
+    setQuery(item.query);
+    setFormula(item.formula);
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    localStorage.removeItem('formulaHistory');
+    toast({
+      title: 'История очищена',
+      description: 'Все записи удалены',
+    });
+  };
 
   const handleConvert = async () => {
     if (!query.trim()) {
@@ -39,6 +80,7 @@ export default function Index() {
 
       const data = await response.json();
       setFormula(data.formula);
+      saveToHistory(query, data.formula);
       
       toast({
         title: 'Готово!',
@@ -150,6 +192,48 @@ export default function Index() {
                     <Icon name="Copy" size={18} />
                     Скопировать формулу
                   </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {history.length > 0 && (
+            <Card className="shadow-sm border-border">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Icon name="History" size={20} />
+                    История запросов
+                  </CardTitle>
+                  <Button
+                    onClick={clearHistory}
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Icon name="Trash2" size={16} />
+                  </Button>
+                </div>
+                <CardDescription>
+                  Последние {history.length} {history.length === 1 ? 'запрос' : 'запросов'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {history.map((item) => (
+                    <div
+                      key={item.id}
+                      onClick={() => loadFromHistory(item)}
+                      className="p-3 border border-border rounded-md hover:bg-muted cursor-pointer transition-colors"
+                    >
+                      <div className="text-sm font-medium text-foreground mb-1">
+                        {item.query}
+                      </div>
+                      <code className="text-xs font-mono text-muted-foreground">
+                        {item.formula}
+                      </code>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
