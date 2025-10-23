@@ -67,7 +67,19 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         'messages': [
             {
                 'role': 'system',
-                'content': 'Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel. Отвечай ТОЛЬКО формулой без объяснений. Формула должна начинаться с =. Используй русские названия функций если пользователь пишет на русском (например СУММ вместо SUM).'
+                'content': '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
+Ответ должен быть в формате JSON:
+{
+  "formula": "формула начинающаяся с =",
+  "explanation": "краткое объяснение что делает формула",
+  "functions": [
+    {
+      "name": "название функции",
+      "description": "что делает эта функция в контексте формулы"
+    }
+  ]
+}
+Используй русские названия функций если пользователь пишет на русском (например СУММ вместо SUM).'''
             },
             {
                 'role': 'user',
@@ -75,7 +87,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         ],
         'temperature': 0.3,
-        'max_tokens': 200
+        'max_tokens': 500
     }
     
     proxy_url = 'http://14a32408394ec:c40a74951e@45.11.154.112:12323/'
@@ -97,7 +109,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             response_data = json.loads(response.read().decode('utf-8'))
-            formula = response_data['choices'][0]['message']['content'].strip()
+            content = response_data['choices'][0]['message']['content'].strip()
+            
+            try:
+                result = json.loads(content)
+            except json.JSONDecodeError:
+                result = {
+                    'formula': content,
+                    'explanation': 'Формула создана успешно',
+                    'functions': []
+                }
             
             return {
                 'statusCode': 200,
@@ -107,7 +128,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 },
                 'isBase64Encoded': False,
                 'body': json.dumps({
-                    'formula': formula,
+                    'formula': result.get('formula', content),
+                    'explanation': result.get('explanation', ''),
+                    'functions': result.get('functions', []),
                     'request_id': context.request_id
                 })
             }

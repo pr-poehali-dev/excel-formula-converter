@@ -6,16 +6,29 @@ import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
+interface FunctionInfo {
+  name: string;
+  description: string;
+}
+
+interface FormulaResult {
+  formula: string;
+  explanation: string;
+  functions: FunctionInfo[];
+}
+
 interface HistoryItem {
   id: string;
   query: string;
   formula: string;
+  explanation: string;
+  functions: FunctionInfo[];
   timestamp: number;
 }
 
 export default function Index() {
   const [query, setQuery] = useState('');
-  const [formula, setFormula] = useState('');
+  const [result, setResult] = useState<FormulaResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const { toast } = useToast();
@@ -27,11 +40,13 @@ export default function Index() {
     }
   }, []);
 
-  const saveToHistory = (userQuery: string, resultFormula: string) => {
+  const saveToHistory = (userQuery: string, formulaResult: FormulaResult) => {
     const newItem: HistoryItem = {
       id: Date.now().toString(),
       query: userQuery,
-      formula: resultFormula,
+      formula: formulaResult.formula,
+      explanation: formulaResult.explanation,
+      functions: formulaResult.functions,
       timestamp: Date.now(),
     };
     const updatedHistory = [newItem, ...history].slice(0, 10);
@@ -41,7 +56,11 @@ export default function Index() {
 
   const loadFromHistory = (item: HistoryItem) => {
     setQuery(item.query);
-    setFormula(item.formula);
+    setResult({
+      formula: item.formula,
+      explanation: item.explanation,
+      functions: item.functions,
+    });
   };
 
   const clearHistory = () => {
@@ -79,8 +98,13 @@ export default function Index() {
       }
 
       const data = await response.json();
-      setFormula(data.formula);
-      saveToHistory(query, data.formula);
+      const formulaResult: FormulaResult = {
+        formula: data.formula,
+        explanation: data.explanation || '',
+        functions: data.functions || [],
+      };
+      setResult(formulaResult);
+      saveToHistory(query, formulaResult);
       
       toast({
         title: 'Готово!',
@@ -98,7 +122,8 @@ export default function Index() {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(formula);
+    if (!result) return;
+    navigator.clipboard.writeText(result.formula);
     toast({
       title: 'Скопировано',
       description: 'Формула скопирована в буфер обмена',
@@ -107,7 +132,7 @@ export default function Index() {
 
   const handleClear = () => {
     setQuery('');
-    setFormula('');
+    setResult(null);
   };
 
   return (
@@ -165,7 +190,7 @@ export default function Index() {
             </CardContent>
           </Card>
 
-          {formula && (
+          {result && (
             <Card className="shadow-sm border-border animate-fade-in">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -180,9 +205,44 @@ export default function Index() {
                 <div className="space-y-4">
                   <div className="bg-muted p-4 rounded-md border border-border">
                     <code className="text-sm font-mono text-foreground break-all">
-                      {formula}
+                      {result.formula}
                     </code>
                   </div>
+                  
+                  {result.explanation && (
+                    <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-md border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-start gap-2">
+                        <Icon name="Info" size={18} className="text-primary mt-0.5 flex-shrink-0" />
+                        <div>
+                          <h4 className="text-sm font-semibold text-foreground mb-1">Объяснение</h4>
+                          <p className="text-sm text-muted-foreground">{result.explanation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {result.functions && result.functions.length > 0 && (
+                    <div className="border border-border rounded-md p-4">
+                      <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Icon name="FunctionSquare" size={18} className="text-primary" />
+                        Используемые функции
+                      </h4>
+                      <div className="space-y-3">
+                        {result.functions.map((func, index) => (
+                          <div key={index} className="flex gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                              <span className="text-xs font-medium text-primary">{index + 1}</span>
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-sm font-medium text-foreground">{func.name}</div>
+                              <div className="text-xs text-muted-foreground mt-0.5">{func.description}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <Button
                     onClick={handleCopy}
                     variant="secondary"
