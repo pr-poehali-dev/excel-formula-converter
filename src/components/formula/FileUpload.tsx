@@ -3,12 +3,13 @@ import Icon from '@/components/ui/icon';
 interface FileUploadProps {
   uploadedFile: File | null;
   workbook: any;
+  isProcessed: boolean;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveFile: () => void;
   onDownloadExcel: () => void;
 }
 
-export function FileUpload({ uploadedFile, workbook, onFileUpload, onRemoveFile, onDownloadExcel }: FileUploadProps) {
+export function FileUpload({ uploadedFile, workbook, isProcessed, onFileUpload, onRemoveFile, onDownloadExcel }: FileUploadProps) {
   return (
     <div className="space-y-4">
       {uploadedFile && (
@@ -23,7 +24,7 @@ export function FileUpload({ uploadedFile, workbook, onFileUpload, onRemoveFile,
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            {workbook && (
+            {workbook && isProcessed && (
               <button
                 onClick={onDownloadExcel}
                 className="flex-1 sm:flex-none px-3 sm:px-4 h-8 sm:h-9 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium flex items-center justify-center gap-1.5 sm:gap-2 transition-colors"

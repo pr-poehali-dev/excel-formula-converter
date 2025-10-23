@@ -16,6 +16,7 @@ export default function Index() {
   const [copied, setCopied] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [workbook, setWorkbook] = useState<XLSX.WorkBook | null>(null);
+  const [isProcessed, setIsProcessed] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -68,6 +69,7 @@ export default function Index() {
     }
 
     setIsLoading(true);
+    setIsProcessed(false);
     
     try {
       let excelData = null;
@@ -104,6 +106,7 @@ export default function Index() {
       saveToHistory(query, formulaResult);
 
       if (workbook && data.cellUpdates) {
+        setIsProcessed(true);
         const ws = workbook.Sheets[workbook.SheetNames[0]];
         
         data.cellUpdates.forEach((update: { cell: string; value: string | number }) => {
@@ -187,6 +190,7 @@ export default function Index() {
   const handleRemoveFile = () => {
     setUploadedFile(null);
     setWorkbook(null);
+    setIsProcessed(false);
   };
 
   const handleDownloadExcel = () => {
@@ -239,6 +243,7 @@ export default function Index() {
             isLoading={isLoading}
             uploadedFile={uploadedFile}
             workbook={workbook}
+            isProcessed={isProcessed}
             onQueryChange={setQuery}
             onConvert={handleConvert}
             onClear={handleClear}

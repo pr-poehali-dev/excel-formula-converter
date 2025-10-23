@@ -9,6 +9,7 @@ interface QueryInputProps {
   isLoading: boolean;
   uploadedFile: File | null;
   workbook: any;
+  isProcessed: boolean;
   onQueryChange: (value: string) => void;
   onConvert: () => void;
   onClear: () => void;
@@ -22,6 +23,7 @@ export function QueryInput({
   isLoading,
   uploadedFile,
   workbook,
+  isProcessed,
   onQueryChange,
   onConvert,
   onClear,
@@ -36,6 +38,7 @@ export function QueryInput({
           <FileUpload
             uploadedFile={uploadedFile}
             workbook={workbook}
+            isProcessed={isProcessed}
             onFileUpload={onFileUpload}
             onRemoveFile={onRemoveFile}
             onDownloadExcel={onDownloadExcel}
