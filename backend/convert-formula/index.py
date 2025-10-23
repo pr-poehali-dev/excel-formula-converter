@@ -50,6 +50,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     body_data = json.loads(event.get('body', '{}'))
     user_query = body_data.get('query', '')
+    language = body_data.get('language', 'ru')
     
     if not user_query:
         return {
@@ -62,24 +63,41 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'body': json.dumps({'error': 'Query is required'})
         }
     
-    chatgpt_request = {
-        'model': 'gpt-4o-mini',
-        'messages': [
-            {
-                'role': 'system',
-                'content': '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
+    if language == 'ru':
+        system_prompt = '''Ты эксперт по Excel формулам. Преобразуй запрос пользователя в готовую формулу Excel.
 Ответ должен быть в формате JSON:
 {
   "formula": "формула начинающаяся с =",
   "explanation": "краткое объяснение что делает формула",
   "functions": [
     {
-      "name": "название функции",
+      "name": "название функции на русском (например СУММ)",
       "description": "что делает эта функция в контексте формулы"
     }
   ]
 }
-Используй русские названия функций если пользователь пишет на русском (например СУММ вместо SUM).'''
+ОБЯЗАТЕЛЬНО используй РУССКИЕ названия функций (например СУММ вместо SUM, ЕСЛИ вместо IF, СРЗНАЧ вместо AVERAGE).'''
+    else:
+        system_prompt = '''You are an Excel formula expert. Convert user query into a ready-to-use Excel formula.
+Response must be in JSON format:
+{
+  "formula": "formula starting with =",
+  "explanation": "brief explanation of what the formula does",
+  "functions": [
+    {
+      "name": "function name in English (e.g., SUM)",
+      "description": "what this function does in the context of the formula"
+    }
+  ]
+}
+ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
+    
+    chatgpt_request = {
+        'model': 'gpt-4o-mini',
+        'messages': [
+            {
+                'role': 'system',
+                'content': system_prompt
             },
             {
                 'role': 'user',

@@ -31,6 +31,7 @@ export default function Index() {
   const [result, setResult] = useState<FormulaResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [language, setLanguage] = useState<'ru' | 'en'>('ru');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -90,7 +91,7 @@ export default function Index() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, language }),
       });
 
       if (!response.ok) {
@@ -138,14 +139,38 @@ export default function Index() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-5xl mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <Icon name="Sheet" size={40} className="text-primary" />
-            <h1 className="text-4xl font-semibold text-foreground">Excel Formula Converter</h1>
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Icon name="Sheet" size={40} className="text-primary" />
+              <div>
+                <h1 className="text-4xl font-semibold text-foreground">Excel Formula Converter</h1>
+                <p className="text-muted-foreground text-lg">
+                  Превратите свой запрос в формулу Excel с помощью AI
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-card border border-border rounded-lg p-1">
+              <Button
+                variant={language === 'ru' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setLanguage('ru')}
+                className="text-xs"
+              >
+                <Icon name="Languages" size={14} className="mr-1" />
+                Русский
+              </Button>
+              <Button
+                variant={language === 'en' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setLanguage('en')}
+                className="text-xs"
+              >
+                <Icon name="Languages" size={14} className="mr-1" />
+                English
+              </Button>
+            </div>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Превратите свой запрос в формулу Excel с помощью AI
-          </p>
         </div>
 
         <div className="grid gap-6">
