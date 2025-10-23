@@ -219,7 +219,7 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      <div className="container max-w-4xl mx-auto px-6 py-16">
+      <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <PageHeader />
 
         <div className="space-y-6">
