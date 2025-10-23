@@ -156,23 +156,23 @@ export default function Index() {
             Превращайте идеи в формулы Excel мгновенно
           </p>
           
-          <div className="inline-flex items-center gap-1 mt-8 bg-white/60 apple-glass border border-slate-200/60 rounded-full p-1.5 apple-shadow">
+          <div className="inline-flex items-center gap-1 mt-8 bg-slate-100 border border-slate-200 rounded-full p-1.5 apple-shadow">
             <button
               onClick={() => setLanguage('ru')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                 language === 'ru' 
-                  ? 'bg-white text-slate-900 shadow-sm' 
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               Русский
             </button>
             <button
               onClick={() => setLanguage('en')}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                 language === 'en' 
-                  ? 'bg-white text-slate-900 shadow-sm' 
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30' 
+                  : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               English
