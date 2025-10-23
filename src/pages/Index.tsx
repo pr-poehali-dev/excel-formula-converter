@@ -158,6 +158,67 @@ export default function Index() {
         </div>
 
         <div className="space-y-6">
+          {result && !isLoading && (
+            <div className="space-y-6 animate-fade-in">
+              <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
+                <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent">
+                  <CardTitle className="text-lg font-semibold text-slate-900">Результат</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 space-y-6">
+                  <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                    <code className="text-base font-mono text-green-400 break-all">
+                      {result.formula}
+                    </code>
+                  </div>
+                  
+                  <Button
+                    onClick={handleCopy}
+                    className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
+                  >
+                    <Icon name="Copy" size={18} className="mr-2" />
+                    Скопировать формулу
+                  </Button>
+
+                  {result.explanation && (
+                    <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                          <Icon name="Lightbulb" size={16} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-semibold text-slate-900 mb-2">Как это работает</h4>
+                          <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {result.functions && result.functions.length > 0 && (
+                    <div className="space-y-4">
+                      <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                        <Icon name="Book" size={16} className="text-blue-500" />
+                        Функции в формуле
+                      </h4>
+                      <div className="space-y-3">
+                        {result.functions.map((func, index) => (
+                          <div key={index} className="flex items-start gap-3 p-4 bg-white/80 rounded-xl border border-slate-200">
+                            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
+                              <span className="text-xs font-bold text-white">{func.name.charAt(0)}</span>
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="text-sm font-semibold text-slate-900 mb-1">{func.name}</h5>
+                              <p className="text-xs text-slate-600">{func.description}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
           <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
             <CardContent className="p-8">
               <div className="space-y-6">
@@ -247,66 +308,7 @@ export default function Index() {
             </Card>
           )}
 
-          {result && !isLoading && (
-            <div className="space-y-6 animate-fade-in">
-              <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
-                <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-slate-50/50 to-transparent">
-                  <CardTitle className="text-lg font-semibold text-slate-900">Результат</CardTitle>
-                </CardHeader>
-                <CardContent className="p-8 space-y-6">
-                  <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                    <code className="text-base font-mono text-green-400 break-all">
-                      {result.formula}
-                    </code>
-                  </div>
-                  
-                  <Button
-                    onClick={handleCopy}
-                    className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
-                  >
-                    <Icon name="Copy" size={18} className="mr-2" />
-                    Скопировать формулу
-                  </Button>
 
-                  {result.explanation && (
-                    <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
-                      <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                          <Icon name="Lightbulb" size={16} className="text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-slate-900 mb-2">Как это работает</h4>
-                          <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {result.functions && result.functions.length > 0 && (
-                    <div className="space-y-4">
-                      <h4 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-                        <Icon name="Code2" size={18} className="text-blue-500" />
-                        Функции в формуле
-                      </h4>
-                      <div className="space-y-3">
-                        {result.functions.map((func, index) => (
-                          <div key={index} className="flex gap-4 p-4 bg-white rounded-xl border border-slate-200">
-                            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-sm font-semibold text-blue-600">{index + 1}</span>
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-sm font-semibold text-slate-900 mb-1">{func.name}</div>
-                              <div className="text-sm text-slate-600 leading-relaxed">{func.description}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          )}
 
           {history.length > 0 && (
             <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow overflow-hidden">
