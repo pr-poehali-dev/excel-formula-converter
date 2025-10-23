@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import * as XLSX from 'xlsx';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -32,6 +33,8 @@ export default function Index() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [language, setLanguage] = useState<'ru' | 'en'>('ru');
   const [copied, setCopied] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [processedFile, setProcessedFile] = useState<ArrayBuffer | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -136,6 +139,47 @@ export default function Index() {
   const handleClear = () => {
     setQuery('');
     setResult(null);
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const validTypes = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+      if (!validTypes.includes(file.type) && !file.name.match(/\.(xls|xlsx)$/)) {
+        toast({
+          title: 'Ошибка',
+          description: 'Пожалуйста, загрузите файл формата XLS или XLSX',
+          variant: 'destructive',
+        });
+        return;
+      }
+      setUploadedFile(file);
+      toast({
+        title: 'Файл загружен',
+        description: file.name,
+      });
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    setProcessedFile(null);
+  };
+
+  const handleDownloadProcessed = () => {
+    if (!processedFile) return;
+    
+    const blob = new Blob([processedFile], { 
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `обработанный_${uploadedFile?.name || 'файл.xlsx'}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -250,6 +294,46 @@ export default function Index() {
           <Card className="border-0 apple-glass border border-slate-200/60 apple-shadow-lg overflow-hidden">
             <CardContent className="p-8">
               <div className="space-y-6">
+                {uploadedFile && (
+                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-green-500 flex items-center justify-center">
+                        <Icon name="FileSpreadsheet" size={20} className="text-white" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-900">{uploadedFile.name}</p>
+                        <p className="text-xs text-slate-500">{(uploadedFile.size / 1024).toFixed(1)} KB</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleRemoveFile}
+                      className="w-8 h-8 rounded-lg bg-slate-200 hover:bg-red-100 flex items-center justify-center transition-colors"
+                      title="Удалить файл"
+                    >
+                      <Icon name="X" size={16} className="text-slate-600" />
+                    </button>
+                  </div>
+                )}
+
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="excel-upload"
+                    accept=".xls,.xlsx"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="excel-upload"
+                    className="flex items-center justify-center gap-2 p-4 border-2 border-dashed border-slate-300 rounded-xl hover:border-blue-400 hover:bg-blue-50/50 cursor-pointer transition-all"
+                  >
+                    <Icon name="Upload" size={20} className="text-slate-500" />
+                    <span className="text-sm text-slate-600">
+                      {uploadedFile ? 'Изменить файл Excel' : 'Загрузить файл Excel (необязательно)'}
+                    </span>
+                  </label>
+                </div>
+
                 <Textarea
                   placeholder="Опишите задачу для Excel..."
                   value={query}
