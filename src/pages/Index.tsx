@@ -165,29 +165,47 @@ export default function Index() {
                   <CardTitle className="text-lg font-semibold text-slate-900">Результат</CardTitle>
                 </CardHeader>
                 <CardContent className="p-8 space-y-6">
-                  <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
-                    <code className="text-base font-mono text-green-400 break-all">
-                      {result.formula}
-                    </code>
-                  </div>
-                  
-                  <Button
-                    onClick={handleCopy}
-                    className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
-                  >
-                    <Icon name="Copy" size={18} className="mr-2" />
-                    Скопировать формулу
-                  </Button>
+                  {result.formula && result.formula.startsWith('=') ? (
+                    <>
+                      <div className="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+                        <code className="text-base font-mono text-green-400 break-all">
+                          {result.formula}
+                        </code>
+                      </div>
+                      
+                      <Button
+                        onClick={handleCopy}
+                        className="w-full h-12 text-base font-medium bg-slate-900 hover:bg-slate-800 rounded-xl"
+                      >
+                        <Icon name="Copy" size={18} className="mr-2" />
+                        Скопировать формулу
+                      </Button>
 
-                  {result.explanation && (
-                    <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                      {result.explanation && (
+                        <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                              <Icon name="Lightbulb" size={16} className="text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="text-sm font-semibold text-slate-900 mb-2">Как это работает</h4>
+                              <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-red-50/50 p-6 rounded-2xl border border-red-200">
                       <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                          <Icon name="Lightbulb" size={16} className="text-white" />
+                        <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
+                          <Icon name="AlertCircle" size={16} className="text-white" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-sm font-semibold text-slate-900 mb-2">Как это работает</h4>
-                          <p className="text-sm text-slate-700 leading-relaxed">{result.explanation}</p>
+                          <h4 className="text-sm font-semibold text-slate-900 mb-2">Ошибка</h4>
+                          <p className="text-sm text-slate-700 leading-relaxed">
+                            {result.formula || result.explanation || 'Не удалось создать формулу. Попробуйте переформулировать запрос.'}
+                          </p>
                         </div>
                       </div>
                     </div>
