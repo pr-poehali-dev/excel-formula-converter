@@ -1,0 +1,36 @@
+{
+  "tests": [
+    {
+      "name": "Проверка конвертации запроса в формулу",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "query": "суммировать значения от A1 до A10"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "formula": "string"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Проверка обработки OPTIONS для CORS",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Проверка ошибки при пустом запросе",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "query": ""
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
