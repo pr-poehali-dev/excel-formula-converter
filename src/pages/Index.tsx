@@ -6,6 +6,7 @@ import { ResultCard } from '@/components/formula/ResultCard';
 import { QueryInput } from '@/components/formula/QueryInput';
 import { HistoryPanel } from '@/components/formula/HistoryPanel';
 import { MagicAnimation } from '@/components/formula/MagicAnimation';
+import { SubscriptionDialog } from '@/components/formula/SubscriptionDialog';
 import { FormulaResult, HistoryItem } from '@/components/formula/types';
 import Icon from '@/components/ui/icon';
 
@@ -18,6 +19,9 @@ export default function Index() {
   const [copied, setCopied] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [excelData, setExcelData] = useState<any>(null);
+  const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
+  const [queriesRemaining, setQueriesRemaining] = useState(5);
+  const [isPremium, setIsPremium] = useState(false);
 
   const { toast } = useToast();
 
@@ -25,6 +29,16 @@ export default function Index() {
     const savedHistory = localStorage.getItem('formulaHistory');
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
+    }
+
+    const savedQueries = localStorage.getItem('queriesRemaining');
+    if (savedQueries !== null) {
+      setQueriesRemaining(parseInt(savedQueries, 10));
+    }
+
+    const premiumStatus = localStorage.getItem('isPremium');
+    if (premiumStatus === 'true') {
+      setIsPremium(true);
     }
   }, []);
 
@@ -70,6 +84,14 @@ export default function Index() {
       return;
     }
 
+    if (!isPremium && queriesRemaining <= 0) {
+      setShowSubscriptionDialog(true);
+      if (typeof window !== 'undefined' && (window as any).ym) {
+        (window as any).ym(104845386, 'reachGoal', 'limits_reached');
+      }
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -97,10 +119,24 @@ export default function Index() {
       };
       setResult(formulaResult);
       saveToHistory(query, formulaResult);
+
+      if (!isPremium) {
+        const newRemaining = queriesRemaining - 1;
+        setQueriesRemaining(newRemaining);
+        localStorage.setItem('queriesRemaining', newRemaining.toString());
+        
+        if (newRemaining === 0) {
+          setTimeout(() => setShowSubscriptionDialog(true), 1000);
+        }
+      }
+
+      if (typeof window !== 'undefined' && (window as any).ym) {
+        (window as any).ym(104845386, 'reachGoal', 'new_formula');
+      }
       
       toast({
         title: 'Готово!',
-        description: 'Формула успешно создана',
+        description: isPremium ? 'Формула успешно создана' : `Формула создана. Осталось запросов: ${queriesRemaining - 1}`,
       });
     } catch (error) {
       toast({
@@ -176,8 +212,31 @@ export default function Index() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
       {isLoading && <MagicAnimation />}
       
+      <SubscriptionDialog
+        open={showSubscriptionDialog}
+        onOpenChange={setShowSubscriptionDialog}
+        remainingQueries={queriesRemaining}
+      />
+      
       <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
         <PageHeader />
+
+        {!isPremium && queriesRemaining < 5 && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Icon name="AlertCircle" size={20} className="text-amber-600" />
+              <span className="text-sm text-slate-700">
+                <strong>Осталось запросов: {queriesRemaining}</strong> из 5 бесплатных
+              </span>
+            </div>
+            <button
+              onClick={() => setShowSubscriptionDialog(true)}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+            >
+              Подключить безлимит
+            </button>
+          </div>
+        )}
 
         <div className="space-y-6">
           {result && !isLoading && (
