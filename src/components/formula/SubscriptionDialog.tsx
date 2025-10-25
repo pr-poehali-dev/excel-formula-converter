@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 interface SubscriptionDialogProps {
   open: boolean;
@@ -19,11 +20,20 @@ export function SubscriptionDialog({
   onOpenChange,
   remainingQueries,
 }: SubscriptionDialogProps) {
+  const { toast } = useToast();
+
   const handleSubscribe = () => {
     if (typeof window !== 'undefined' && (window as any).ym) {
       (window as any).ym(104845386, 'reachGoal', 'pay_request');
     }
-    window.open('https://t.me/getjura', '_blank');
+    
+    toast({
+      title: 'Спасибо за интерес! 🚀',
+      description: 'Скоро здесь появится возможность оформить подписку. Следите за обновлениями!',
+      duration: 5000,
+    });
+    
+    onOpenChange(false);
   };
 
   return (
@@ -91,7 +101,7 @@ export function SubscriptionDialog({
           </div>
 
           <p className="text-xs text-center text-slate-500">
-            После оплаты отправьте чек в Telegram для активации
+            Возможность оплаты скоро появится
           </p>
         </div>
       </DialogContent>
