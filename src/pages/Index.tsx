@@ -232,14 +232,14 @@ export default function Index() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setResult(null)}
-                className="text-sm font-medium text-slate-600 hover:text-slate-700 flex items-center gap-1"
+                className="text-sm font-medium text-slate-700 hover:text-slate-900 flex items-center gap-1"
               >
                 <Icon name="Plus" size={16} />
                 Новый запрос
               </button>
               <button
                 onClick={() => setShowSubscriptionDialog(true)}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700 underline"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700"
               >
                 Подключить безлимит
               </button>
