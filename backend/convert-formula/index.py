@@ -200,9 +200,12 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             response_data = json.loads(response.read().decode('utf-8'))
+            print(f"DEBUG: Full response_data keys: {list(response_data.keys())}")
+            print(f"DEBUG: Response status: {response_data.get('status', 'UNKNOWN')}")
             
             # Новый API gpt-5 возвращает output с массивом items
             if 'output' in response_data:
+                print(f"DEBUG: Output found, length: {len(response_data.get('output', []))}")
                 # Извлекаем текст из output items
                 output_items = response_data.get('output', [])
                 content_parts = []
