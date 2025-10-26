@@ -175,19 +175,10 @@ Response must be in JSON format:
 ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
     
     chatgpt_request = {
-        'model': 'gpt-4o-mini',
-        'messages': [
-            {
-                'role': 'system',
-                'content': system_prompt
-            },
-            {
-                'role': 'user',
-                'content': user_query
-            }
-        ],
-        'temperature': 0.3,
-        'max_tokens': 500
+        'model': 'gpt-5',
+        'reasoning': {'effort': 'low'},
+        'instructions': system_prompt,
+        'input': user_query
     }
     
     proxy_url = 'http://14a32408394ec:c40a74951e@45.11.154.112:12323/'
@@ -197,7 +188,7 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
     
     request_body = json.dumps(chatgpt_request).encode('utf-8')
     req = urllib.request.Request(
-        'https://api.openai.com/v1/chat/completions',
+        'https://api.openai.com/v1/responses',
         data=request_body,
         headers={
             'Content-Type': 'application/json',
@@ -209,7 +200,31 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
     try:
         with urllib.request.urlopen(req, timeout=30) as response:
             response_data = json.loads(response.read().decode('utf-8'))
-            content = response_data['choices'][0]['message']['content'].strip()
+            
+            # Новый API gpt-5 возвращает output с массивом items
+            if 'output' in response_data:
+                # Извлекаем текст из output items
+                output_items = response_data.get('output', [])
+                content_parts = []
+                for item in output_items:
+                    if item.get('type') == 'message':
+                        for content_item in item.get('content', []):
+                            if content_item.get('type') == 'text':
+                                content_parts.append(content_item.get('text', ''))
+                content = ''.join(content_parts).strip()
+            elif 'choices' in response_data:
+                # Старый API chat completions
+                content = response_data['choices'][0]['message']['content'].strip()
+            else:
+                return {
+                    'statusCode': 500,
+                    'headers': {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*'
+                    },
+                    'isBase64Encoded': False,
+                    'body': json.dumps({'error': 'Unexpected API response structure', 'response': str(response_data)[:500]})
+                }
             
             try:
                 result = json.loads(content)
