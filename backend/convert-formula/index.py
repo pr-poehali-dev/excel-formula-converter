@@ -226,9 +226,14 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
                     'body': json.dumps({'error': 'Unexpected API response structure', 'response': str(response_data)[:500]})
                 }
             
+            # Логирование для отладки
+            print(f"DEBUG: Content from API: {content[:500]}")
+            
             try:
                 result = json.loads(content)
+                print(f"DEBUG: Parsed result formula: {result.get('formula', 'NO FORMULA')[:100]}")
             except json.JSONDecodeError:
+                print(f"DEBUG: JSON decode failed, using raw content as formula")
                 result = {
                     'formula': content,
                     'explanation': 'Формула создана успешно',
