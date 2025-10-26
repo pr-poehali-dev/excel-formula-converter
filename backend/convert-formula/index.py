@@ -203,25 +203,15 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
             print(f"DEBUG: Full response_data keys: {list(response_data.keys())}")
             print(f"DEBUG: Response status: {response_data.get('status', 'UNKNOWN')}")
             
-            # Новый API gpt-5 может возвращать text напрямую или через output
-            if 'text' in response_data and response_data['text']:
-                text_data = response_data['text']
-                # text может быть строкой или dict
-                if isinstance(text_data, str):
-                    content = text_data.strip()
-                    print(f"DEBUG: Using 'text' field (string) from response")
-                elif isinstance(text_data, dict):
-                    # Возможно text - это dict с полями
-                    raw_content = text_data.get('content', '') or text_data.get('text', '') or str(text_data)
-                    content = raw_content.strip() if isinstance(raw_content, str) else str(raw_content)
-                    print(f"DEBUG: Using 'text' field (dict) from response, keys: {list(text_data.keys())}")
-                else:
-                    content = str(text_data).strip()
-                    print(f"DEBUG: Using 'text' field (other type) from response")
-            elif 'output' in response_data:
-                print(f"DEBUG: Output found, length: {len(response_data.get('output', []))}")
-                # Извлекаем текст из output items
+            # Новый API gpt-5 возвращает output с массивом items
+            if 'output' in response_data:
                 output_items = response_data.get('output', [])
+                print(f"DEBUG: Output found, length: {len(output_items)}")
+                if output_items:
+                    print(f"DEBUG: First output item type: {output_items[0].get('type', 'NO_TYPE')}")
+                    print(f"DEBUG: First output item keys: {list(output_items[0].keys())[:10]}")
+                
+                # Извлекаем текст из output items
                 content_parts = []
                 for item in output_items:
                     if item.get('type') == 'message':
@@ -229,6 +219,7 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
                             if content_item.get('type') == 'text':
                                 content_parts.append(content_item.get('text', ''))
                 content = ''.join(content_parts).strip()
+                print(f"DEBUG: Extracted content length: {len(content)}")
             elif 'choices' in response_data:
                 # Старый API chat completions
                 content = response_data['choices'][0]['message']['content'].strip()
