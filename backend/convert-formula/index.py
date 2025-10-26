@@ -222,9 +222,10 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
                         print(f"DEBUG: Message has {len(content_list)} content items")
                         for content_item in content_list:
                             content_item_type = content_item.get('type', 'NO_TYPE')
-                            print(f"DEBUG: Content item type: {content_item_type}")
-                            if content_item_type == 'text':
-                                text_content = content_item.get('text', '')
+                            print(f"DEBUG: Content item type: {content_item_type}, keys: {list(content_item.keys())}")
+                            # GPT-5 использует type='output_text', а не 'text'
+                            if content_item_type in ['text', 'output_text']:
+                                text_content = content_item.get('text', '') or content_item.get('output_text', '')
                                 print(f"DEBUG: Found text content, length: {len(text_content)}")
                                 content_parts.append(text_content)
                 
