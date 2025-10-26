@@ -213,13 +213,23 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
                 
                 # Извлекаем текст из output items
                 content_parts = []
-                for item in output_items:
-                    if item.get('type') == 'message':
-                        for content_item in item.get('content', []):
-                            if content_item.get('type') == 'text':
-                                content_parts.append(content_item.get('text', ''))
+                for idx, item in enumerate(output_items):
+                    item_type = item.get('type', 'NO_TYPE')
+                    print(f"DEBUG: Item {idx} type: {item_type}, keys: {list(item.keys())[:10]}")
+                    
+                    if item_type == 'message':
+                        content_list = item.get('content', [])
+                        print(f"DEBUG: Message has {len(content_list)} content items")
+                        for content_item in content_list:
+                            content_item_type = content_item.get('type', 'NO_TYPE')
+                            print(f"DEBUG: Content item type: {content_item_type}")
+                            if content_item_type == 'text':
+                                text_content = content_item.get('text', '')
+                                print(f"DEBUG: Found text content, length: {len(text_content)}")
+                                content_parts.append(text_content)
+                
                 content = ''.join(content_parts).strip()
-                print(f"DEBUG: Extracted content length: {len(content)}")
+                print(f"DEBUG: Final extracted content length: {len(content)}")
             elif 'choices' in response_data:
                 # Старый API chat completions
                 content = response_data['choices'][0]['message']['content'].strip()
