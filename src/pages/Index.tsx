@@ -103,7 +103,8 @@ export default function Index() {
         body: JSON.stringify({ 
           query, 
           language,
-          excelData: excelData || null
+          excelData: excelData || null,
+          hasExcel: !!excelData
         }),
       });
 

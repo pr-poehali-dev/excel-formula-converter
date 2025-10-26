@@ -54,6 +54,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     excel_data = body_data.get('excelData', None)
     has_excel = body_data.get('hasExcel', False)
     
+    print(f"DEBUG: has_excel={has_excel}, excel_data length={len(excel_data) if excel_data else 0}")
+    
     if not user_query:
         return {
             'statusCode': 400,
