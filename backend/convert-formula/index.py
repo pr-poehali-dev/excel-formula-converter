@@ -203,8 +203,22 @@ ALWAYS use ENGLISH function names (e.g., SUM, IF, AVERAGE).'''
             print(f"DEBUG: Full response_data keys: {list(response_data.keys())}")
             print(f"DEBUG: Response status: {response_data.get('status', 'UNKNOWN')}")
             
-            # Новый API gpt-5 возвращает output с массивом items
-            if 'output' in response_data:
+            # Новый API gpt-5 может возвращать text напрямую или через output
+            if 'text' in response_data and response_data['text']:
+                text_data = response_data['text']
+                # text может быть строкой или dict
+                if isinstance(text_data, str):
+                    content = text_data.strip()
+                    print(f"DEBUG: Using 'text' field (string) from response")
+                elif isinstance(text_data, dict):
+                    # Возможно text - это dict с полями
+                    raw_content = text_data.get('content', '') or text_data.get('text', '') or str(text_data)
+                    content = raw_content.strip() if isinstance(raw_content, str) else str(raw_content)
+                    print(f"DEBUG: Using 'text' field (dict) from response, keys: {list(text_data.keys())}")
+                else:
+                    content = str(text_data).strip()
+                    print(f"DEBUG: Using 'text' field (other type) from response")
+            elif 'output' in response_data:
                 print(f"DEBUG: Output found, length: {len(response_data.get('output', []))}")
                 # Извлекаем текст из output items
                 output_items = response_data.get('output', [])
