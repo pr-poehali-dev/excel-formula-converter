@@ -104,7 +104,7 @@ export default function Index() {
           query, 
           language,
           excelData: excelData || null,
-          hasExcel: !!excelData
+          hasExcel: !!uploadedFile && !!excelData
         }),
       });
 
