@@ -16,9 +16,17 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
 
   useEffect(() => {
     if (!isLoading && textareaRef.current) {
-      textareaRef.current.focus();
+      setTimeout(() => {
+        textareaRef.current?.focus();
+      }, 100);
     }
   }, [isLoading]);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, []);
 
   const handleSend = () => {
     if (input.trim() && !isLoading) {
