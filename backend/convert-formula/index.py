@@ -116,6 +116,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'max_completion_tokens': 300
         }).encode('utf-8')
         
+        proxy_handler = urllib.request.ProxyHandler({
+            'http': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323',
+            'https': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323'
+        })
+        opener = urllib.request.build_opener(proxy_handler)
+        
         req = urllib.request.Request(
             'https://api.openai.com/v1/chat/completions',
             data=request_body,
@@ -128,19 +134,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         assistant_message = ''
         max_retries = 2
-        use_proxy = True
         
         for attempt in range(max_retries):
             try:
-                if use_proxy:
-                    proxy_handler = urllib.request.ProxyHandler({
-                        'http': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323',
-                        'https': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323'
-                    })
-                    opener = urllib.request.build_opener(proxy_handler)
-                else:
-                    opener = urllib.request.build_opener()
-                
                 with opener.open(req, timeout=15) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
                 
@@ -153,9 +149,6 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     print(f"WARNING: Empty response on attempt {attempt + 1}, retrying...")
             except Exception as retry_error:
                 print(f"WARNING: Request failed on attempt {attempt + 1}: {str(retry_error)}")
-                if use_proxy and '403' in str(retry_error):
-                    print("INFO: Proxy blocked, switching to direct connection")
-                    use_proxy = False
             
             if attempt < max_retries - 1:
                 import time
