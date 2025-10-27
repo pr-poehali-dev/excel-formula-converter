@@ -195,6 +195,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 result['explanation'] = assistant_message
             if 'functions' not in result:
                 result['functions'] = []
+            if 'example' not in result:
+                result['example'] = None
                 
         except Exception as parse_error:
             print(f"ERROR: Failed to parse JSON: {parse_error}")
@@ -202,7 +204,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             result = {
                 'formula': None,
                 'explanation': assistant_message if assistant_message else 'Извини, произошла ошибка обработки ответа. Попробуй переформулировать вопрос.',
-                'functions': []
+                'functions': [],
+                'example': None
             }
         
         return {
