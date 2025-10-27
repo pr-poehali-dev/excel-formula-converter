@@ -44,13 +44,13 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
 
   return (
     <div className="space-y-2">
-      <div className="flex items-end gap-2 bg-white rounded-2xl shadow-lg border border-blue-200 p-2 animate-pulse-glow">
+      <div className="flex items-end gap-1.5 sm:gap-2 bg-white rounded-2xl shadow-lg border border-blue-200 p-1.5 sm:p-2 animate-pulse-glow">
         <button
           onClick={() => fileInputRef.current?.click()}
-          className="p-2.5 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
+          className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
           title="Загрузить Excel файл"
         >
-          <Icon name="Paperclip" size={20} className="text-slate-600" />
+          <Icon name="Paperclip" size={18} className="text-slate-600 sm:w-5 sm:h-5" />
         </button>
         <input
           ref={fileInputRef}
@@ -65,12 +65,12 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="Напиши, что нужно сделать в Excel..."
-          className="flex-1 resize-none bg-transparent border-none focus:outline-none text-slate-700 placeholder-slate-400 py-2.5 px-2 min-h-[44px] max-h-32"
+          placeholder="Напиши, что нужно сделать..."
+          className="flex-1 resize-none bg-transparent border-none focus:outline-none text-sm sm:text-base text-slate-700 placeholder-slate-400 py-2 sm:py-2.5 px-1 sm:px-2 min-h-[40px] sm:min-h-[44px] max-h-32"
           rows={1}
           style={{
             height: 'auto',
-            minHeight: '44px'
+            minHeight: '40px'
           }}
           onInput={(e) => {
             const target = e.target as HTMLTextAreaElement;
@@ -82,10 +82,10 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
         <button
           onClick={handleSend}
           disabled={!input.trim() || isLoading}
-          className="p-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:cursor-not-allowed rounded-xl transition-colors flex-shrink-0"
+          className="p-2 sm:p-2.5 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:cursor-not-allowed rounded-xl transition-colors flex-shrink-0"
           title="Отправить"
         >
-          <Icon name="Send" size={20} className="text-white" />
+          <Icon name="Send" size={18} className="text-white sm:w-5 sm:h-5" />
         </button>
       </div>
 

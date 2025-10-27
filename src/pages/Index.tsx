@@ -233,39 +233,41 @@ export default function Index() {
         <PageHeader />
 
         {!isPremium && queriesRemaining < 15 && (
-          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Icon name="AlertCircle" size={20} className="text-amber-600" />
-              <span className="text-sm text-slate-700">
-                <strong>Осталось запросов: {queriesRemaining}</strong> из 15 бесплатных
-              </span>
+          <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-xl">
+            <div className="flex items-center justify-between gap-3 mb-2 sm:mb-0">
+              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                <Icon name="AlertCircle" size={18} className="text-amber-600 flex-shrink-0" />
+                <span className="text-xs sm:text-sm text-slate-700 truncate">
+                  <strong>Осталось: {queriesRemaining}</strong> из 15
+                </span>
+              </div>
+              <button
+                onClick={() => setShowSubscriptionDialog(true)}
+                className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 whitespace-nowrap flex-shrink-0"
+              >
+                Безлимит
+              </button>
             </div>
-            <button
-              onClick={() => setShowSubscriptionDialog(true)}
-              className="text-sm font-medium text-blue-600 hover:text-blue-700"
-            >
-              Подключить безлимит
-            </button>
           </div>
         )}
 
         {uploadedFile && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Icon name="FileSpreadsheet" size={18} className="text-green-600" />
-              <span className="text-sm text-slate-700">{uploadedFile.name}</span>
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <Icon name="FileSpreadsheet" size={16} className="text-green-600 flex-shrink-0" />
+              <span className="text-xs sm:text-sm text-slate-700 truncate">{uploadedFile.name}</span>
             </div>
             <button
               onClick={handleRemoveFile}
-              className="text-slate-500 hover:text-slate-700"
+              className="text-slate-500 hover:text-slate-700 flex-shrink-0 p-1"
             >
-              <Icon name="X" size={18} />
+              <Icon name="X" size={16} />
             </button>
           </div>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-40">
+      <div className="flex-1 overflow-y-auto pb-44 sm:pb-40">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <div className="space-y-4">
             {messages.map(message => (
