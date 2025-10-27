@@ -13,6 +13,10 @@ interface Message {
   content: string;
   formula?: string;
   functions?: Array<{ name: string; description: string }>;
+  example?: {
+    grid: Record<string, Record<string, string | number>>;
+    result: { row: number; col: string; value: string | number };
+  };
   timestamp: number;
 }
 
@@ -119,6 +123,7 @@ export default function Index() {
         content: data.explanation || data.formula,
         formula: data.formula,
         functions: data.functions || [],
+        example: data.example || undefined,
         timestamp: Date.now()
       };
 

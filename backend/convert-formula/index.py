@@ -78,10 +78,15 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 Формат ответа:
 1. Если нужны уточнения:
-{"formula": null, "explanation": "твой вопрос", "functions": []}
+{"formula": null, "explanation": "твой вопрос", "functions": [], "example": null}
 
 2. Если готова формула:
-{"formula": "=СУММ(A:A)", "explanation": "краткое описание", "functions": [{"name": "СУММ", "description": "суммирует"}]}
+{"formula": "=СУММ(A1:A3)", "explanation": "краткое описание", "functions": [{"name": "СУММ", "description": "суммирует"}], "example": {"grid": {"1": {"A": 10}, "2": {"A": 20}, "3": {"A": 30}, "4": {"A": "=СУММ(A1:A3)"}}, "result": {"row": 4, "col": "A", "value": 60}}}
+
+ВАЖНО для поля example:
+- grid: объект с номерами строк (ключи "1", "2"...) и столбцами (A, B, C...)
+- result: обязательно укажи row (номер строки с формулой), col (столбец с формулой), value (результат вычисления)
+- Пример должен быть простым и понятным для демонстрации формулы
 
 Не добавляй никакого текста кроме JSON!'''
 

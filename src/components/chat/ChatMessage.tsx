@@ -8,6 +8,10 @@ interface Message {
   content: string;
   formula?: string;
   functions?: Array<{ name: string; description: string }>;
+  example?: {
+    grid: Record<string, Record<string, string | number>>;
+    result: { row: number; col: string; value: string | number };
+  };
   timestamp: number;
 }
 
@@ -20,20 +24,21 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const { toast } = useToast();
 
   const generateExampleData = useMemo(() => {
+    if (message.example) {
+      return message.example;
+    }
+    
     if (!message.formula) return null;
 
-    const formula = message.formula;
-    let gridData: Record<number, Record<string, string | number>> = {};
-
-    gridData = {
-      1: { A: 10, B: 20, C: 30 },
-      2: { A: 15, B: 25, C: 35 },
-      3: { A: 20, B: 30, C: 40 },
-      4: { A: message.formula }
+    const gridData: Record<string, Record<string, string | number>> = {
+      '1': { A: 10, B: 20, C: 30 },
+      '2': { A: 15, B: 25, C: 35 },
+      '3': { A: 20, B: 30, C: 40 },
+      '4': { A: message.formula }
     };
 
-    return gridData;
-  }, [message.formula]);
+    return { grid: gridData, result: { row: 4, col: 'A', value: '...' } };
+  }, [message.formula, message.example]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -77,7 +82,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               </div>
             </div>
 
-            {generateExampleData && Object.keys(generateExampleData).length > 0 && (
+            {generateExampleData && generateExampleData.grid && Object.keys(generateExampleData.grid).length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-slate-500 mb-2">Пример работы формулы:</p>
                 <div className="bg-white border-2 border-slate-300 rounded-lg overflow-hidden shadow-sm">
@@ -96,18 +101,32 @@ export function ChatMessage({ message }: ChatMessageProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {Object.keys(generateExampleData).map((rowNum) => {
-                          const row = generateExampleData[Number(rowNum)];
+                        {Object.keys(generateExampleData.grid).map((rowNum) => {
+                          const row = generateExampleData.grid[rowNum];
+                          const isResultRow = generateExampleData.result && Number(rowNum) === generateExampleData.result.row;
                           return (
                             <tr key={rowNum} className="bg-white">
                               <td className="w-12 px-2 py-2 text-center font-semibold text-slate-600 bg-gradient-to-r from-slate-100 to-slate-50 border-r-2 border-b border-slate-300">
                                 {rowNum}
                               </td>
-                              {['A', 'B', 'C', 'D'].map((col) => (
-                                <td key={col} className="px-4 py-2 text-slate-700 border-r-2 border-b border-slate-300 text-center">
-                                  {row[col] !== undefined ? row[col] : ''}
-                                </td>
-                              ))}
+                              {['A', 'B', 'C', 'D'].map((col) => {
+                                const isResultCell = isResultRow && generateExampleData.result?.col === col;
+                                const cellValue = row[col] !== undefined ? row[col] : '';
+                                return (
+                                  <td key={col} className={`px-4 py-2 border-r-2 border-b border-slate-300 text-center ${
+                                    isResultCell ? 'bg-blue-50' : ''
+                                  }`}>
+                                    {isResultCell && typeof cellValue === 'string' && cellValue.startsWith('=') ? (
+                                      <div className="space-y-1">
+                                        <div className="text-slate-600 text-[10px]">{cellValue}</div>
+                                        <div className="font-semibold text-blue-600">{generateExampleData.result.value}</div>
+                                      </div>
+                                    ) : (
+                                      <span className="text-slate-700">{cellValue}</span>
+                                    )}
+                                  </td>
+                                );
+                              })}
                             </tr>
                           );
                         })}
