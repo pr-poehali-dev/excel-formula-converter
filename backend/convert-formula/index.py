@@ -133,11 +133,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         assistant_message = ''
-        max_retries = 3
+        max_retries = 2
         
         for attempt in range(max_retries):
             try:
-                with opener.open(req, timeout=45) as response:
+                with opener.open(req, timeout=20) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
                 
                 assistant_message = response_data.get('choices', [{}])[0].get('message', {}).get('content', '')
@@ -152,7 +152,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             
             if attempt < max_retries - 1:
                 import time
-                time.sleep(2)
+                time.sleep(0.5)
         
         if not assistant_message or not assistant_message.strip():
             print("ERROR: All retry attempts returned empty response")
