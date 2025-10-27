@@ -265,7 +265,7 @@ export default function Index() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-32">
+      <div className="flex-1 overflow-y-auto pb-40">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <div className="space-y-4">
             {messages.map(message => (
@@ -287,7 +287,7 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pt-4 pb-4 border-t border-slate-200">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm pt-6 pb-4 border-t border-slate-200 shadow-2xl">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <ChatInput
             onSendMessage={handleSendMessage}
