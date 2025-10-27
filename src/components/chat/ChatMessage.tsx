@@ -113,27 +113,39 @@ export function ChatMessage({ message }: ChatMessageProps) {
             {generateExampleData && generateExampleData.length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-slate-500 mb-2">Пример работы формулы:</p>
-                <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
-                  <table className="w-full text-xs">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Ячейка</th>
-                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Значение</th>
-                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Результат</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {generateExampleData.map((row, idx) => (
-                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
-                          <td className="px-3 py-2 font-mono text-slate-700 border-b border-slate-100">{row.cell}</td>
-                          <td className="px-3 py-2 text-slate-600 border-b border-slate-100">{row.value}</td>
-                          <td className="px-3 py-2 font-semibold text-blue-600 border-b border-slate-100">
-                            {row.result !== undefined ? row.result : '—'}
-                          </td>
+                <div className="bg-white border-2 border-slate-300 rounded-lg overflow-hidden shadow-sm">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs border-collapse">
+                      <thead>
+                        <tr className="bg-gradient-to-b from-slate-100 to-slate-50">
+                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[80px]">
+                            Ячейка
+                          </th>
+                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[100px]">
+                            Значение
+                          </th>
+                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-b-2 border-slate-300 min-w-[100px]">
+                            Результат
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {generateExampleData.map((row, idx) => (
+                          <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}>
+                            <td className="px-4 py-2.5 font-mono font-semibold text-slate-800 border-r-2 border-b border-slate-300 text-center">
+                              {row.cell}
+                            </td>
+                            <td className="px-4 py-2.5 text-slate-700 border-r-2 border-b border-slate-300 text-center">
+                              {row.value || '—'}
+                            </td>
+                            <td className="px-4 py-2.5 font-semibold text-blue-600 border-b border-slate-300 text-center">
+                              {row.result !== undefined ? row.result : '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             )}
