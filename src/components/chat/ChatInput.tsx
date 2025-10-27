@@ -38,7 +38,7 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
 
   return (
     <div className="space-y-2">
-      <div className="flex items-end gap-1.5 sm:gap-2 bg-white rounded-2xl shadow-lg border border-blue-200 p-1.5 sm:p-2 sm:animate-pulse-glow">
+      <div className="flex items-end gap-1.5 sm:gap-2 bg-white rounded-2xl shadow-lg border-2 border-blue-300 p-1.5 sm:p-2 sm:animate-pulse-glow">
         <button
           onClick={() => fileInputRef.current?.click()}
           className="p-2 sm:p-2.5 hover:bg-slate-100 rounded-xl transition-colors flex-shrink-0"
