@@ -23,49 +23,43 @@ export function ChatMessage({ message }: ChatMessageProps) {
     if (!message.formula) return null;
 
     const formula = message.formula.toUpperCase();
-    const exampleData: Array<{ cell: string; value: string | number; result?: string | number }> = [];
+    let gridData: Record<number, Record<string, string | number>> = {};
 
     if (formula.includes('SUM') || formula.includes('СУММ')) {
-      exampleData.push(
-        { cell: 'A1', value: 10 },
-        { cell: 'A2', value: 20 },
-        { cell: 'A3', value: 30 },
-        { cell: 'A4', value: '', result: 60 }
-      );
+      gridData = {
+        1: { A: 10 },
+        2: { A: 20 },
+        3: { A: 30 },
+        4: { A: '=СУММ(A1:A3)' }
+      };
     } else if (formula.includes('IF') || formula.includes('ЕСЛИ')) {
-      exampleData.push(
-        { cell: 'A1', value: 85 },
-        { cell: 'B1', value: '', result: 'Отлично' }
-      );
+      gridData = {
+        1: { A: 85, B: '=ЕСЛИ(A1>80;"Отлично";"Хорошо")' }
+      };
     } else if (formula.includes('VLOOKUP') || formula.includes('ВПР')) {
-      exampleData.push(
-        { cell: 'A1', value: 'Товар 1' },
-        { cell: 'B1', value: 100 },
-        { cell: 'C1', value: '', result: 100 }
-      );
+      gridData = {
+        1: { A: 'Товар 1', B: 100, C: '=ВПР(A1;A:B;2;0)' }
+      };
     } else if (formula.includes('COUNTIF') || formula.includes('СЧЁТЕСЛИ')) {
-      exampleData.push(
-        { cell: 'A1', value: 'Да' },
-        { cell: 'A2', value: 'Нет' },
-        { cell: 'A3', value: 'Да' },
-        { cell: 'B1', value: '', result: 2 }
-      );
+      gridData = {
+        1: { A: 'Да', B: '=СЧЁТЕСЛИ(A:A;"Да")' },
+        2: { A: 'Нет' },
+        3: { A: 'Да' }
+      };
     } else if (formula.includes('AVERAGE') || formula.includes('СРЗНАЧ')) {
-      exampleData.push(
-        { cell: 'A1', value: 10 },
-        { cell: 'A2', value: 20 },
-        { cell: 'A3', value: 30 },
-        { cell: 'A4', value: '', result: 20 }
-      );
+      gridData = {
+        1: { A: 10 },
+        2: { A: 20 },
+        3: { A: 30 },
+        4: { A: '=СРЗНАЧ(A1:A3)' }
+      };
     } else {
-      exampleData.push(
-        { cell: 'A1', value: 10 },
-        { cell: 'B1', value: 5 },
-        { cell: 'C1', value: '', result: '...' }
-      );
+      gridData = {
+        1: { A: 10, B: 5, C: '=A1+B1' }
+      };
     }
 
-    return exampleData;
+    return gridData;
   }, [message.formula]);
 
   const handleCopy = (text: string) => {
@@ -110,7 +104,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
               </div>
             </div>
 
-            {generateExampleData && generateExampleData.length > 0 && (
+            {generateExampleData && Object.keys(generateExampleData).length > 0 && (
               <div className="mt-3">
                 <p className="text-xs font-medium text-slate-500 mb-2">Пример работы формулы:</p>
                 <div className="bg-white border-2 border-slate-300 rounded-lg overflow-hidden shadow-sm">
@@ -118,31 +112,32 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     <table className="w-full text-xs border-collapse">
                       <thead>
                         <tr className="bg-gradient-to-b from-slate-100 to-slate-50">
-                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[80px]">
-                            Ячейка
+                          <th className="w-12 px-2 py-2 text-center font-semibold text-slate-600 border-r-2 border-b-2 border-slate-300">
+                            
                           </th>
-                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[100px]">
-                            Значение
-                          </th>
-                          <th className="px-4 py-2.5 text-center font-semibold text-slate-700 border-b-2 border-slate-300 min-w-[100px]">
-                            Результат
-                          </th>
+                          {['A', 'B', 'C', 'D'].map((col) => (
+                            <th key={col} className="px-4 py-2 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[100px]">
+                              {col}
+                            </th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
-                        {generateExampleData.map((row, idx) => (
-                          <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/30'}>
-                            <td className="px-4 py-2.5 font-mono font-semibold text-slate-800 border-r-2 border-b border-slate-300 text-center">
-                              {row.cell}
-                            </td>
-                            <td className="px-4 py-2.5 text-slate-700 border-r-2 border-b border-slate-300 text-center">
-                              {row.value || '—'}
-                            </td>
-                            <td className="px-4 py-2.5 font-semibold text-blue-600 border-b border-slate-300 text-center">
-                              {row.result !== undefined ? row.result : '—'}
-                            </td>
-                          </tr>
-                        ))}
+                        {Object.keys(generateExampleData).map((rowNum) => {
+                          const row = generateExampleData[Number(rowNum)];
+                          return (
+                            <tr key={rowNum} className="bg-white">
+                              <td className="w-12 px-2 py-2 text-center font-semibold text-slate-600 bg-gradient-to-r from-slate-100 to-slate-50 border-r-2 border-b border-slate-300">
+                                {rowNum}
+                              </td>
+                              {['A', 'B', 'C', 'D'].map((col) => (
+                                <td key={col} className="px-4 py-2 text-slate-700 border-r-2 border-b border-slate-300 text-center">
+                                  {row[col] !== undefined ? row[col] : ''}
+                                </td>
+                              ))}
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
