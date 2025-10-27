@@ -1,4 +1,4 @@
-import { useState, useRef, KeyboardEvent } from 'react';
+import { useState, useRef, KeyboardEvent, useEffect } from 'react';
 import Icon from '@/components/ui/icon';
 
 interface ChatInputProps {
@@ -12,6 +12,13 @@ interface ChatInputProps {
 export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading, hasMessages }: ChatInputProps) {
   const [input, setInput] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!isLoading && textareaRef.current) {
+      textareaRef.current.focus();
+    }
+  }, [isLoading]);
 
   const handleSend = () => {
     if (input.trim() && !isLoading) {
@@ -46,6 +53,7 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
         />
 
         <textarea
+          ref={textareaRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyPress}
