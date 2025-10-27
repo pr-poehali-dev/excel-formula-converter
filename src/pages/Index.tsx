@@ -1,36 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
+import { ChatMessage } from '@/components/chat/ChatMessage';
+import { ChatInput } from '@/components/chat/ChatInput';
 import { PageHeader } from '@/components/formula/PageHeader';
-import { ResultCard } from '@/components/formula/ResultCard';
-import { QueryInput } from '@/components/formula/QueryInput';
-import { HistoryPanel } from '@/components/formula/HistoryPanel';
-import { MagicAnimation } from '@/components/formula/MagicAnimation';
 import { SubscriptionDialog } from '@/components/formula/SubscriptionDialog';
-import { FormulaResult, HistoryItem } from '@/components/formula/types';
 import Icon from '@/components/ui/icon';
 
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  formula?: string;
+  functions?: Array<{ name: string; description: string }>;
+  timestamp: number;
+}
+
 export default function Index() {
-  const [query, setQuery] = useState('');
-  const [result, setResult] = useState<FormulaResult | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [language] = useState<'ru' | 'en'>('ru');
-  const [copied, setCopied] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [excelData, setExcelData] = useState<any>(null);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
   const [queriesRemaining, setQueriesRemaining] = useState(5);
   const [isPremium, setIsPremium] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const { toast } = useToast();
 
   useEffect(() => {
-    const savedHistory = localStorage.getItem('formulaHistory');
-    if (savedHistory) {
-      setHistory(JSON.parse(savedHistory));
-    }
-
     const savedQueries = localStorage.getItem('queriesRemaining');
     if (savedQueries !== null) {
       setQueriesRemaining(parseInt(savedQueries, 10));
@@ -40,49 +38,32 @@ export default function Index() {
     if (premiumStatus === 'true') {
       setIsPremium(true);
     }
+
+    const savedMessages = localStorage.getItem('chatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    } else {
+      setMessages([{
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'Привет! Я помогу создать формулу для Excel. Расскажи, что тебе нужно сделать?',
+        timestamp: Date.now()
+      }]);
+    }
   }, []);
 
-  const saveToHistory = (userQuery: string, formulaResult: FormulaResult) => {
-    const newItem: HistoryItem = {
-      id: Date.now().toString(),
-      query: userQuery,
-      formula: formulaResult.formula,
-      explanation: formulaResult.explanation,
-      functions: formulaResult.functions,
-      timestamp: Date.now(),
-    };
-    const updatedHistory = [newItem, ...history].slice(0, 10);
-    setHistory(updatedHistory);
-    localStorage.setItem('formulaHistory', JSON.stringify(updatedHistory));
-  };
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
-  const loadFromHistory = (item: HistoryItem) => {
-    setQuery(item.query);
-    setResult({
-      formula: item.formula,
-      explanation: item.explanation,
-      functions: item.functions,
-    });
-  };
-
-  const clearHistory = () => {
-    setHistory([]);
-    localStorage.removeItem('formulaHistory');
-    toast({
-      title: 'История очищена',
-      description: 'Все записи удалены',
-    });
-  };
-
-  const handleConvert = async () => {
-    if (!query.trim()) {
-      toast({
-        title: 'Ошибка',
-        description: 'Пожалуйста, введите запрос',
-        variant: 'destructive',
-      });
-      return;
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
     }
+  }, [messages]);
+
+  const handleSendMessage = async (userMessage: string) => {
+    if (!userMessage.trim()) return;
 
     if (!isPremium && queriesRemaining <= 0) {
       setShowSubscriptionDialog(true);
@@ -92,40 +73,56 @@ export default function Index() {
       return;
     }
 
+    const newUserMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: userMessage,
+      timestamp: Date.now()
+    };
+
+    setMessages(prev => [...prev, newUserMessage]);
     setIsLoading(true);
-    
+
     try {
       const response = await fetch('https://functions.poehali.dev/12cba3b7-c7f4-4a93-b6ae-380062983a1f', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          query, 
-          language,
+        body: JSON.stringify({
+          query: userMessage,
+          language: 'ru',
           excelData: excelData || null,
-          hasExcel: !!uploadedFile && !!excelData
+          hasExcel: !!uploadedFile && !!excelData,
+          conversationHistory: messages.slice(-4).map(m => ({
+            role: m.role,
+            content: m.content
+          }))
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Ошибка конвертации');
+        throw new Error('Ошибка запроса');
       }
 
       const data = await response.json();
-      const formulaResult: FormulaResult = {
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.explanation || data.formula,
         formula: data.formula,
-        explanation: data.explanation || '',
-        functions: data.functions || []
+        functions: data.functions || [],
+        timestamp: Date.now()
       };
-      setResult(formulaResult);
-      saveToHistory(query, formulaResult);
+
+      setMessages(prev => [...prev, assistantMessage]);
 
       if (!isPremium) {
         const newRemaining = queriesRemaining - 1;
         setQueriesRemaining(newRemaining);
         localStorage.setItem('queriesRemaining', newRemaining.toString());
-        
+
         if (newRemaining === 0) {
           setTimeout(() => setShowSubscriptionDialog(true), 1000);
         }
@@ -134,36 +131,24 @@ export default function Index() {
       if (typeof window !== 'undefined' && (window as any).ym) {
         (window as any).ym(104845386, 'reachGoal', 'new_formula');
       }
-      
-      toast({
-        title: 'Готово!',
-        description: isPremium ? 'Формула успешно создана' : `Формула создана. Осталось запросов: ${queriesRemaining - 1}`,
-      });
+
     } catch (error) {
       toast({
         title: 'Ошибка',
-        description: 'Не удалось создать формулу. Проверьте настройки API.',
+        description: 'Не удалось обработать запрос',
         variant: 'destructive',
       });
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Извини, произошла ошибка. Попробуй переформулировать вопрос.',
+        timestamp: Date.now()
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleCopy = () => {
-    if (!result) return;
-    navigator.clipboard.writeText(result.formula);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast({
-      title: 'Скопировано',
-      description: 'Формула скопирована в буфер обмена',
-    });
-  };
-
-  const handleClear = () => {
-    setQuery('');
-    setResult(null);
   };
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -181,7 +166,7 @@ export default function Index() {
     }
 
     setUploadedFile(file);
-    
+
     const reader = new FileReader();
     reader.onload = (e) => {
       const data = e.target?.result;
@@ -194,8 +179,16 @@ export default function Index() {
 
     toast({
       title: 'Файл загружен',
-      description: `${file.name} - данные будут учтены при создании формулы`,
+      description: `${file.name} - данные учитываются в диалоге`,
     });
+
+    const fileMessage: Message = {
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: `Отлично! Файл ${file.name} загружен. Я вижу данные из первых 20 строк. Теперь можешь задавать вопросы про формулы, и я буду учитывать структуру твоего файла.`,
+      timestamp: Date.now()
+    };
+    setMessages(prev => [...prev, fileMessage]);
   };
 
   const handleRemoveFile = () => {
@@ -203,89 +196,98 @@ export default function Index() {
     setExcelData(null);
     toast({
       title: 'Файл удалён',
-      description: 'Формулы будут создаваться без контекста файла',
+      description: 'Контекст файла больше не используется',
     });
   };
 
-
+  const handleClearChat = () => {
+    setMessages([{
+      id: Date.now().toString(),
+      role: 'assistant',
+      content: 'Привет! Я помогу создать формулу для Excel. Расскажи, что тебе нужно сделать?',
+      timestamp: Date.now()
+    }]);
+    localStorage.removeItem('chatMessages');
+    toast({
+      title: 'Чат очищен',
+      description: 'Начнём сначала',
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
-      {isLoading && <MagicAnimation />}
-      
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex flex-col">
       <SubscriptionDialog
         open={showSubscriptionDialog}
         onOpenChange={setShowSubscriptionDialog}
         remainingQueries={queriesRemaining}
       />
-      
-      <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+
+      <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <PageHeader />
 
         {!isPremium && queriesRemaining < 5 && (
-          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
+          <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Icon name="AlertCircle" size={20} className="text-amber-600" />
               <span className="text-sm text-slate-700">
                 <strong>Осталось запросов: {queriesRemaining}</strong> из 5 бесплатных
               </span>
             </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setResult(null)}
-                className="text-sm font-medium text-slate-700 hover:text-slate-900 flex items-center gap-1"
-              >
-                <Icon name="Plus" size={16} />
-                Новый запрос
-              </button>
-              <button
-                onClick={() => setShowSubscriptionDialog(true)}
-                className="text-sm font-medium text-blue-600 hover:text-blue-700"
-              >
-                Подключить безлимит
-              </button>
-            </div>
+            <button
+              onClick={() => setShowSubscriptionDialog(true)}
+              className="text-sm font-medium text-blue-600 hover:text-blue-700"
+            >
+              Подключить безлимит
+            </button>
           </div>
         )}
 
-        <div className="space-y-6">
-          {result && !isLoading && (
-            <div className="space-y-6 animate-fade-in">
-              <ResultCard
-                result={result}
-                copied={copied}
-                onCopy={handleCopy}
-              />
+        {uploadedFile && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon name="FileSpreadsheet" size={18} className="text-green-600" />
+              <span className="text-sm text-slate-700">{uploadedFile.name}</span>
             </div>
-          )}
+            <button
+              onClick={handleRemoveFile}
+              className="text-slate-500 hover:text-slate-700"
+            >
+              <Icon name="X" size={18} />
+            </button>
+          </div>
+        )}
+      </div>
 
-          {!result || isLoading ? (
-            <QueryInput
-              query={query}
-              isLoading={isLoading}
-              uploadedFile={uploadedFile}
-              onQueryChange={setQuery}
-              onConvert={handleConvert}
-              onClear={handleClear}
-              onFileUpload={handleFileUpload}
-              onRemoveFile={handleRemoveFile}
-            />
-          ) : (
-            <div className="flex justify-center">
-              <button
-                onClick={() => setResult(null)}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-300 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-200 shadow-sm hover:shadow"
-              >
-                <Icon name="Pencil" size={16} className="text-slate-600" />
-                <span className="text-sm font-medium text-slate-700">Изменить запрос</span>
-              </button>
-            </div>
-          )}
+      <div className="flex-1 overflow-y-auto pb-32">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="space-y-4">
+            {messages.map(message => (
+              <ChatMessage key={message.id} message={message} />
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white rounded-2xl px-4 py-3 shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+        </div>
+      </div>
 
-          <HistoryPanel
-            history={history}
-            onLoadFromHistory={loadFromHistory}
-            onClearHistory={clearHistory}
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent pt-4 pb-4 border-t border-slate-200">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+          <ChatInput
+            onSendMessage={handleSendMessage}
+            onFileUpload={handleFileUpload}
+            onClearChat={handleClearChat}
+            isLoading={isLoading}
+            hasMessages={messages.length > 1}
           />
         </div>
       </div>
