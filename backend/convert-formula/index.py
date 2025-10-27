@@ -111,7 +111,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         request_body = json.dumps({
-            'model': 'gpt-4o-2025-02-15',
+            'model': 'gpt-5',
             'messages': messages,
             'max_completion_tokens': 300,
             'reasoning': {'effort': 'low'}
