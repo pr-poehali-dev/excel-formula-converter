@@ -239,16 +239,16 @@ export default function Index() {
 
         {!isPremium && queriesRemaining < 15 && (
           <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-xl">
-            <div className="flex items-center justify-between gap-3 mb-2 sm:mb-0">
-              <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                <Icon name="AlertCircle" size={18} className="text-amber-600 flex-shrink-0" />
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-1 overflow-hidden">
+                <Icon name="AlertCircle" size={16} className="text-amber-600 flex-shrink-0" />
                 <span className="text-xs sm:text-sm text-slate-700 truncate">
                   <strong>Осталось: {queriesRemaining}</strong> из 15
                 </span>
               </div>
               <button
                 onClick={() => setShowSubscriptionDialog(true)}
-                className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 whitespace-nowrap flex-shrink-0"
+                className="text-xs sm:text-sm font-medium text-blue-600 hover:text-blue-700 whitespace-nowrap flex-shrink-0 px-2"
               >
                 Безлимит
               </button>
@@ -257,8 +257,8 @@ export default function Index() {
         )}
 
         {uploadedFile && (
-          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="mb-4 p-2.5 sm:p-3 bg-green-50 border border-green-200 rounded-xl flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2 flex-1 overflow-hidden">
               <Icon name="FileSpreadsheet" size={16} className="text-green-600 flex-shrink-0" />
               <span className="text-xs sm:text-sm text-slate-700 truncate">{uploadedFile.name}</span>
             </div>
@@ -274,7 +274,7 @@ export default function Index() {
 
       <div className="flex-1 overflow-y-auto pb-44 sm:pb-40">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             {messages.map(message => (
               <ChatMessage key={message.id} message={message} />
             ))}

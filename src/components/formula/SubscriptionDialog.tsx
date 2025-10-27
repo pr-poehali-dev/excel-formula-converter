@@ -38,13 +38,13 @@ export function SubscriptionDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-w-[calc(100vw-2rem)]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Icon name="Zap" size={24} className="text-yellow-500" />
-            {remainingQueries === 0 ? 'Лимит запросов исчерпан' : 'Осталось запросов'}
+          <DialogTitle className="flex items-center gap-2 text-lg sm:text-xl">
+            <Icon name="Zap" size={20} className="text-yellow-500 sm:w-6 sm:h-6" />
+            <span className="truncate">{remainingQueries === 0 ? 'Лимит запросов исчерпан' : 'Осталось запросов'}</span>
           </DialogTitle>
-          <DialogDescription className="text-base pt-2">
+          <DialogDescription className="text-sm sm:text-base pt-2">
             {remainingQueries === 0 ? (
               <span className="text-slate-700">
                 Вы использовали все <strong>5 бесплатных запросов</strong>.
@@ -58,43 +58,43 @@ export function SubscriptionDialog({
         </DialogHeader>
 
         <div className="space-y-4 pt-4">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-200">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                <Icon name="Sparkles" size={24} className="text-white" />
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 sm:p-6 border border-blue-200">
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                <Icon name="Sparkles" size={20} className="text-white sm:w-6 sm:h-6" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-2">
                   Безлимитная подписка
                 </h3>
-                <ul className="space-y-2 text-sm text-slate-700">
+                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-slate-700">
                   <li className="flex items-center gap-2">
-                    <Icon name="Check" size={16} className="text-green-500" />
-                    Безлимитное количество формул
+                    <Icon name="Check" size={14} className="text-green-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                    <span>Безлимитное количество формул</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Icon name="Check" size={16} className="text-green-500" />
-                    Анализ Excel файлов
+                    <Icon name="Check" size={14} className="text-green-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                    <span>Анализ Excel файлов</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Icon name="Check" size={16} className="text-green-500" />
-                    Приоритетная поддержка
+                    <Icon name="Check" size={14} className="text-green-500 flex-shrink-0 sm:w-4 sm:h-4" />
+                    <span>Приоритетная поддержка</span>
                   </li>
                 </ul>
               </div>
             </div>
             
-            <div className="mt-6 pt-4 border-t border-blue-200/50">
-              <div className="flex items-baseline gap-2 mb-4">
-                <span className="text-3xl font-bold text-slate-900">150₽</span>
-                <span className="text-slate-600">/месяц</span>
+            <div className="mt-4 sm:mt-6 pt-4 border-t border-blue-200/50">
+              <div className="flex items-baseline gap-2 mb-3 sm:mb-4">
+                <span className="text-2xl sm:text-3xl font-bold text-slate-900">150₽</span>
+                <span className="text-sm sm:text-base text-slate-600">/месяц</span>
               </div>
               
               <Button
                 onClick={handleSubscribe}
-                className="w-full h-12 text-base font-medium bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl shadow-lg"
+                className="w-full h-11 sm:h-12 text-sm sm:text-base font-medium bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 rounded-xl shadow-lg"
               >
-                <Icon name="Crown" size={20} className="mr-2" />
+                <Icon name="Crown" size={18} className="mr-2 sm:w-5 sm:h-5" />
                 Оформить подписку
               </Button>
             </div>

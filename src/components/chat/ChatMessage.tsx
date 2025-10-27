@@ -63,7 +63,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
   return (
     <div className="flex justify-start">
       <div className="max-w-[90%] sm:max-w-[85%] bg-white rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm border border-slate-100">
-        <p className="text-sm text-slate-700 whitespace-pre-wrap break-words mb-2">
+        <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">
           {message.content}
         </p>
 
@@ -86,15 +86,15 @@ export function ChatMessage({ message }: ChatMessageProps) {
               <div className="mt-3">
                 <p className="text-xs font-medium text-slate-500 mb-2">Пример работы формулы:</p>
                 <div className="bg-white border-2 border-slate-300 rounded-lg overflow-hidden shadow-sm">
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto -mx-1">
                     <table className="w-full text-xs border-collapse">
                       <thead>
                         <tr className="bg-gradient-to-b from-slate-100 to-slate-50">
-                          <th className="w-12 px-2 py-2 text-center font-semibold text-slate-600 border-r-2 border-b-2 border-slate-300">
+                          <th className="w-8 sm:w-12 px-1 sm:px-2 py-1.5 sm:py-2 text-center font-semibold text-slate-600 border-r-2 border-b-2 border-slate-300">
                             
                           </th>
                           {['A', 'B', 'C', 'D'].map((col) => (
-                            <th key={col} className="px-4 py-2 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[100px]">
+                            <th key={col} className="px-2 sm:px-4 py-1.5 sm:py-2 text-center font-semibold text-slate-700 border-r-2 border-b-2 border-slate-300 min-w-[60px] sm:min-w-[100px]">
                               {col}
                             </th>
                           ))}
@@ -106,23 +106,23 @@ export function ChatMessage({ message }: ChatMessageProps) {
                           const isResultRow = generateExampleData.result && Number(rowNum) === generateExampleData.result.row;
                           return (
                             <tr key={rowNum} className="bg-white">
-                              <td className="w-12 px-2 py-2 text-center font-semibold text-slate-600 bg-gradient-to-r from-slate-100 to-slate-50 border-r-2 border-b border-slate-300">
+                              <td className="w-8 sm:w-12 px-1 sm:px-2 py-1.5 sm:py-2 text-center font-semibold text-slate-600 bg-gradient-to-r from-slate-100 to-slate-50 border-r-2 border-b border-slate-300 text-[10px] sm:text-xs">
                                 {rowNum}
                               </td>
                               {['A', 'B', 'C', 'D'].map((col) => {
                                 const isResultCell = isResultRow && generateExampleData.result?.col === col;
                                 const cellValue = row[col] !== undefined ? row[col] : '';
                                 return (
-                                  <td key={col} className={`px-4 py-2 border-r-2 border-b border-slate-300 text-center ${
+                                  <td key={col} className={`px-2 sm:px-4 py-1.5 sm:py-2 border-r-2 border-b border-slate-300 text-center ${
                                     isResultCell ? 'bg-blue-50' : ''
                                   }`}>
                                     {isResultCell && typeof cellValue === 'string' && cellValue.startsWith('=') ? (
-                                      <div className="space-y-1">
-                                        <div className="text-slate-600 text-[10px]">{cellValue}</div>
-                                        <div className="font-semibold text-blue-600">{generateExampleData.result.value}</div>
+                                      <div className="space-y-0.5">
+                                        <div className="text-slate-600 text-[9px] sm:text-[10px]">{cellValue}</div>
+                                        <div className="font-semibold text-blue-600 text-[10px] sm:text-xs">{generateExampleData.result.value}</div>
                                       </div>
                                     ) : (
-                                      <span className="text-slate-700">{cellValue}</span>
+                                      <span className="text-slate-700 text-[10px] sm:text-xs">{cellValue}</span>
                                     )}
                                   </td>
                                 );
