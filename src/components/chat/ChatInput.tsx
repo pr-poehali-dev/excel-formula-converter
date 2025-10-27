@@ -15,7 +15,7 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (!isLoading && textareaRef.current) {
+    if (textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
