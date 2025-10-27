@@ -74,20 +74,16 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 - Используй РУССКИЕ названия функций (СУММ, ЕСЛИ, СРЗНАЧ, ОСТАТ и т.д.)
 - Будь дружелюбным и помогай разобраться
 
-Формат ответа:
-1. Если нужны уточнения - верни JSON:
-{
-  "formula": null,
-  "explanation": "твой вопрос пользователю",
-  "functions": []
-}
+ОБЯЗАТЕЛЬНО возвращай ТОЛЬКО валидный JSON, без дополнительного текста!
 
-2. Если готова формула - верни JSON:
-{
-  "formula": "=СУММ(A:A)",
-  "explanation": "Эта формула суммирует все значения в столбце A",
-  "functions": [{"name": "СУММ", "description": "суммирует значения"}]
-}'''
+Формат ответа:
+1. Если нужны уточнения - верни строго этот JSON:
+{"formula": null, "explanation": "твой вопрос пользователю", "functions": []}
+
+2. Если готова формула - верни строго этот JSON:
+{"formula": "=СУММ(A:A)", "explanation": "Эта формула суммирует все значения в столбце A", "functions": [{"name": "СУММ", "description": "суммирует значения"}]}
+
+Не добавляй никакого текста кроме JSON!'''
 
     if has_excel and excel_data:
         system_prompt += f'''
@@ -128,15 +124,35 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             response_data = json.loads(response.read().decode('utf-8'))
         
         assistant_message = response_data['choices'][0]['message']['content']
+        print(f"DEBUG: Raw assistant message: {assistant_message[:500]}")
         
         try:
-            result = json.loads(assistant_message)
+            assistant_message_clean = assistant_message.strip()
+            if assistant_message_clean.startswith('```json'):
+                assistant_message_clean = assistant_message_clean[7:]
+            if assistant_message_clean.startswith('```'):
+                assistant_message_clean = assistant_message_clean[3:]
+            if assistant_message_clean.endswith('```'):
+                assistant_message_clean = assistant_message_clean[:-3]
+            assistant_message_clean = assistant_message_clean.strip()
+            
+            result = json.loads(assistant_message_clean)
             if not isinstance(result, dict):
                 raise ValueError("Not a dict")
-        except:
+            
+            if 'formula' not in result:
+                result['formula'] = None
+            if 'explanation' not in result:
+                result['explanation'] = assistant_message
+            if 'functions' not in result:
+                result['functions'] = []
+                
+        except Exception as parse_error:
+            print(f"ERROR: Failed to parse JSON: {parse_error}")
+            print(f"DEBUG: Content was: {assistant_message}")
             result = {
                 'formula': None,
-                'explanation': assistant_message,
+                'explanation': assistant_message if assistant_message else 'Извини, произошла ошибка обработки ответа. Попробуй переформулировать вопрос.',
                 'functions': []
             }
         
