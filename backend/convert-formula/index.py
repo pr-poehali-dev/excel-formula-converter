@@ -113,7 +113,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         request_body = json.dumps({
             'model': 'gpt-5',
             'messages': messages,
-            'max_completion_tokens': 500
+            'max_completion_tokens': 300
         }).encode('utf-8')
         
         proxy_handler = urllib.request.ProxyHandler({
@@ -133,11 +133,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         assistant_message = ''
-        max_retries = 3
+        max_retries = 2
         
         for attempt in range(max_retries):
             try:
-                with opener.open(req, timeout=25) as response:
+                with opener.open(req, timeout=15) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
                 
                 assistant_message = response_data.get('choices', [{}])[0].get('message', {}).get('content', '')
