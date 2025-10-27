@@ -289,7 +289,7 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm pt-6 pb-4 border-t border-slate-200 shadow-2xl">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm pt-6 pb-4 shadow-2xl">
         <div className="container max-w-4xl mx-auto px-4 sm:px-6">
           <ChatInput
             onSendMessage={handleSendMessage}
