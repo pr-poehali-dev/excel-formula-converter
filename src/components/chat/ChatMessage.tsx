@@ -53,7 +53,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 <code className="flex-1 break-all leading-relaxed">{message.formula}</code>
                 <button
                   onClick={() => handleCopy(message.formula!)}
-                  className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1 sm:p-1.5 hover:bg-slate-200 rounded flex-shrink-0"
+                  className="opacity-100 transition-opacity p-1 sm:p-1.5 hover:bg-slate-200 rounded flex-shrink-0"
                   title="Скопировать формулу"
                 >
                   <Icon name={copied ? "Check" : "Copy"} size={14} className="text-slate-600 sm:w-4 sm:h-4" />
