@@ -144,7 +144,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         max_retries = 3
         
         for attempt in range(max_retries):
-            timeout_seconds = 20 if attempt < 2 else 25
+            timeout_seconds = 120 if attempt == max_retries - 1 else 25
             try:
                 with opener.open(req, timeout=timeout_seconds) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
