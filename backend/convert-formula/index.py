@@ -142,9 +142,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         assistant_message = ''
         max_retries = 3
-        timeout_seconds = 25
         
         for attempt in range(max_retries):
+            timeout_seconds = 120 if attempt == max_retries - 1 else 25
             try:
                 with opener.open(req, timeout=timeout_seconds) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
