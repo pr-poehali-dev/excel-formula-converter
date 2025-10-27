@@ -132,11 +132,39 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             method='POST'
         )
         
-        with opener.open(req, timeout=30) as response:
-            response_data = json.loads(response.read().decode('utf-8'))
+        assistant_message = ''
+        max_retries = 2
         
-        assistant_message = response_data['choices'][0]['message']['content']
-        print(f"DEBUG: Raw assistant message: {assistant_message[:min(500, len(assistant_message))]}")
+        for attempt in range(max_retries):
+            with opener.open(req, timeout=30) as response:
+                response_data = json.loads(response.read().decode('utf-8'))
+            
+            assistant_message = response_data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            
+            if assistant_message and assistant_message.strip():
+                print(f"DEBUG: Got response on attempt {attempt + 1}: {assistant_message[:min(200, len(assistant_message))]}")
+                break
+            else:
+                print(f"WARNING: Empty response on attempt {attempt + 1}, retrying...")
+                if attempt < max_retries - 1:
+                    import time
+                    time.sleep(1)
+        
+        if not assistant_message or not assistant_message.strip():
+            print("ERROR: All retry attempts returned empty response")
+            return {
+                'statusCode': 500,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'isBase64Encoded': False,
+                'body': json.dumps({
+                    'formula': None,
+                    'explanation': 'Произошла ошибка получения ответа. Попробуй еще раз.',
+                    'functions': []
+                }, ensure_ascii=False)
+            }
         
         try:
             assistant_message_clean = assistant_message.strip()
@@ -161,7 +189,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 
         except Exception as parse_error:
             print(f"ERROR: Failed to parse JSON: {parse_error}")
-            print(f"DEBUG: Content was: {assistant_message}")
+            print(f"DEBUG: Content was: {assistant_message[:min(500, len(assistant_message))]}")
             result = {
                 'formula': None,
                 'explanation': assistant_message if assistant_message else 'Извини, произошла ошибка обработки ответа. Попробуй переформулировать вопрос.',
