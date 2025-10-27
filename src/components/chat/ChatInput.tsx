@@ -68,7 +68,6 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
           placeholder="Напиши, что нужно сделать в Excel..."
           className="flex-1 resize-none bg-transparent border-none focus:outline-none text-slate-700 placeholder-slate-400 py-2.5 px-2 min-h-[44px] max-h-32"
           rows={1}
-          disabled={isLoading}
           style={{
             height: 'auto',
             minHeight: '44px'
