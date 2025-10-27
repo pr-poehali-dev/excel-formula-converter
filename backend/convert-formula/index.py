@@ -100,12 +100,21 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     full_input = conversation_context + f"Пользователь: {user_query}"
     
+    messages = [
+        {'role': 'system', 'content': instructions}
+    ]
+    
+    for msg in conversation_history:
+        messages.append({'role': msg['role'], 'content': msg['content']})
+    
+    messages.append({'role': 'user', 'content': user_query})
+    
     try:
         request_body = json.dumps({
-            'model': 'gpt-5',
-            'reasoning': {'effort': 'low'},
-            'instructions': instructions,
-            'input': full_input
+            'model': 'gpt-4o-mini',
+            'messages': messages,
+            'temperature': 0.7,
+            'max_tokens': 800
         }).encode('utf-8')
         
         proxy_handler = urllib.request.ProxyHandler({
@@ -115,7 +124,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         opener = urllib.request.build_opener(proxy_handler)
         
         req = urllib.request.Request(
-            'https://api.openai.com/v1/responses',
+            'https://api.openai.com/v1/chat/completions',
             data=request_body,
             headers={
                 'Content-Type': 'application/json',
@@ -124,28 +133,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             method='POST'
         )
         
-        with opener.open(req, timeout=60) as response:
+        with opener.open(req, timeout=30) as response:
             response_data = json.loads(response.read().decode('utf-8'))
         
-        print(f"DEBUG: Full response keys: {list(response_data.keys())}")
-        assistant_message = response_data.get('output_text', response_data.get('text', ''))
-        
-        if not assistant_message and 'output' in response_data:
-            output = response_data.get('output', [])
-            if isinstance(output, list) and len(output) > 0:
-                for item in output:
-                    if isinstance(item, dict) and item.get('type') == 'message':
-                        content = item.get('content', [])
-                        if isinstance(content, list):
-                            for c in content:
-                                if isinstance(c, dict) and c.get('type') == 'output_text':
-                                    assistant_message = c.get('text', '')
-                                    break
-        
-        if assistant_message:
-            print(f"DEBUG: Raw assistant message: {assistant_message[:min(500, len(assistant_message))]}")
-        else:
-            print(f"DEBUG: Empty assistant message, full response: {json.dumps(response_data)[:1000]}")
+        assistant_message = response_data['choices'][0]['message']['content']
+        print(f"DEBUG: Raw assistant message: {assistant_message[:min(500, len(assistant_message))]}")
         
         try:
             assistant_message_clean = assistant_message.strip()
