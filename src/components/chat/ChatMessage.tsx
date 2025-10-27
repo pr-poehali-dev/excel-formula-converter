@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,6 +18,55 @@ interface ChatMessageProps {
 export function ChatMessage({ message }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+
+  const generateExampleData = useMemo(() => {
+    if (!message.formula) return null;
+
+    const formula = message.formula.toUpperCase();
+    const exampleData: Array<{ cell: string; value: string | number; result?: string | number }> = [];
+
+    if (formula.includes('SUM') || formula.includes('СУММ')) {
+      exampleData.push(
+        { cell: 'A1', value: 10 },
+        { cell: 'A2', value: 20 },
+        { cell: 'A3', value: 30 },
+        { cell: 'A4', value: '', result: 60 }
+      );
+    } else if (formula.includes('IF') || formula.includes('ЕСЛИ')) {
+      exampleData.push(
+        { cell: 'A1', value: 85 },
+        { cell: 'B1', value: '', result: 'Отлично' }
+      );
+    } else if (formula.includes('VLOOKUP') || formula.includes('ВПР')) {
+      exampleData.push(
+        { cell: 'A1', value: 'Товар 1' },
+        { cell: 'B1', value: 100 },
+        { cell: 'C1', value: '', result: 100 }
+      );
+    } else if (formula.includes('COUNTIF') || formula.includes('СЧЁТЕСЛИ')) {
+      exampleData.push(
+        { cell: 'A1', value: 'Да' },
+        { cell: 'A2', value: 'Нет' },
+        { cell: 'A3', value: 'Да' },
+        { cell: 'B1', value: '', result: 2 }
+      );
+    } else if (formula.includes('AVERAGE') || formula.includes('СРЗНАЧ')) {
+      exampleData.push(
+        { cell: 'A1', value: 10 },
+        { cell: 'A2', value: 20 },
+        { cell: 'A3', value: 30 },
+        { cell: 'A4', value: '', result: 20 }
+      );
+    } else {
+      exampleData.push(
+        { cell: 'A1', value: 10 },
+        { cell: 'B1', value: 5 },
+        { cell: 'C1', value: '', result: '...' }
+      );
+    }
+
+    return exampleData;
+  }, [message.formula]);
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -60,6 +109,34 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 </button>
               </div>
             </div>
+
+            {generateExampleData && generateExampleData.length > 0 && (
+              <div className="mt-3">
+                <p className="text-xs font-medium text-slate-500 mb-2">Пример работы формулы:</p>
+                <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Ячейка</th>
+                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Значение</th>
+                        <th className="px-3 py-2 text-left font-medium text-slate-600 border-b border-slate-200">Результат</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {generateExampleData.map((row, idx) => (
+                        <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+                          <td className="px-3 py-2 font-mono text-slate-700 border-b border-slate-100">{row.cell}</td>
+                          <td className="px-3 py-2 text-slate-600 border-b border-slate-100">{row.value}</td>
+                          <td className="px-3 py-2 font-semibold text-blue-600 border-b border-slate-100">
+                            {row.result !== undefined ? row.result : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
 
             {message.functions && message.functions.length > 0 && (
               <div className="mt-3 space-y-2">
