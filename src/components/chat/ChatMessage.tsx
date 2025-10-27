@@ -22,42 +22,15 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const generateExampleData = useMemo(() => {
     if (!message.formula) return null;
 
-    const formula = message.formula.toUpperCase();
+    const formula = message.formula;
     let gridData: Record<number, Record<string, string | number>> = {};
 
-    if (formula.includes('SUM') || formula.includes('СУММ')) {
-      gridData = {
-        1: { A: 10 },
-        2: { A: 20 },
-        3: { A: 30 },
-        4: { A: '=СУММ(A1:A3)' }
-      };
-    } else if (formula.includes('IF') || formula.includes('ЕСЛИ')) {
-      gridData = {
-        1: { A: 85, B: '=ЕСЛИ(A1>80;"Отлично";"Хорошо")' }
-      };
-    } else if (formula.includes('VLOOKUP') || formula.includes('ВПР')) {
-      gridData = {
-        1: { A: 'Товар 1', B: 100, C: '=ВПР(A1;A:B;2;0)' }
-      };
-    } else if (formula.includes('COUNTIF') || formula.includes('СЧЁТЕСЛИ')) {
-      gridData = {
-        1: { A: 'Да', B: '=СЧЁТЕСЛИ(A:A;"Да")' },
-        2: { A: 'Нет' },
-        3: { A: 'Да' }
-      };
-    } else if (formula.includes('AVERAGE') || formula.includes('СРЗНАЧ')) {
-      gridData = {
-        1: { A: 10 },
-        2: { A: 20 },
-        3: { A: 30 },
-        4: { A: '=СРЗНАЧ(A1:A3)' }
-      };
-    } else {
-      gridData = {
-        1: { A: 10, B: 5, C: '=A1+B1' }
-      };
-    }
+    gridData = {
+      1: { A: 10, B: 20, C: 30 },
+      2: { A: 15, B: 25, C: 35 },
+      3: { A: 20, B: 30, C: 40 },
+      4: { A: message.formula }
+    };
 
     return gridData;
   }, [message.formula]);
