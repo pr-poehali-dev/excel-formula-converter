@@ -141,11 +141,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         )
         
         assistant_message = ''
-        max_retries = 2
+        max_retries = 3
+        timeout_seconds = 25
         
         for attempt in range(max_retries):
             try:
-                with opener.open(req, timeout=15) as response:
+                with opener.open(req, timeout=timeout_seconds) as response:
                     response_data = json.loads(response.read().decode('utf-8'))
                 
                 assistant_message = response_data.get('choices', [{}])[0].get('message', {}).get('content', '')
@@ -155,12 +156,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     break
                 else:
                     print(f"WARNING: Empty response on attempt {attempt + 1}, retrying...")
+            except urllib.error.URLError as url_error:
+                print(f"WARNING: Timeout or network error on attempt {attempt + 1}: {str(url_error)}")
             except Exception as retry_error:
                 print(f"WARNING: Request failed on attempt {attempt + 1}: {str(retry_error)}")
             
             if attempt < max_retries - 1:
                 import time
-                time.sleep(1)
+                time.sleep(0.5)
         
         if not assistant_message or not assistant_message.strip():
             print("ERROR: All retry attempts returned empty response")
