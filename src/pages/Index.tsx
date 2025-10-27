@@ -84,6 +84,7 @@ export default function Index() {
     setIsLoading(true);
 
     try {
+      console.log('Отправка запроса:', userMessage);
       const response = await fetch('https://functions.poehali.dev/12cba3b7-c7f4-4a93-b6ae-380062983a1f', {
         method: 'POST',
         headers: {
@@ -101,11 +102,16 @@ export default function Index() {
         }),
       });
 
+      console.log('Статус ответа:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Ошибка запроса');
+        const errorText = await response.text();
+        console.error('Ошибка от сервера:', errorText);
+        throw new Error(`Ошибка запроса: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Получен ответ:', data);
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -133,9 +139,10 @@ export default function Index() {
       }
 
     } catch (error) {
+      console.error('Ошибка запроса:', error);
       toast({
         title: 'Ошибка',
-        description: 'Не удалось обработать запрос',
+        description: error instanceof Error ? error.message : 'Не удалось обработать запрос',
         variant: 'destructive',
       });
       
