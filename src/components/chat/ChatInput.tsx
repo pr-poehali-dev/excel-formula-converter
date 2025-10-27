@@ -15,18 +15,12 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (textareaRef.current) {
+    if (!isLoading && textareaRef.current) {
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
     }
   }, [isLoading]);
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, []);
 
   const handleSend = () => {
     if (input.trim() && !isLoading) {
@@ -68,6 +62,7 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
           placeholder="Напиши, что нужно сделать..."
           className="flex-1 resize-none bg-transparent border-none focus:outline-none text-sm sm:text-base text-slate-700 placeholder-slate-400 py-2 sm:py-2.5 px-1 sm:px-2 min-h-[40px] sm:min-h-[44px] max-h-32"
           rows={1}
+          enterKeyHint="send"
           style={{
             height: 'auto',
             minHeight: '40px'
@@ -76,6 +71,11 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
             const target = e.target as HTMLTextAreaElement;
             target.style.height = 'auto';
             target.style.height = Math.min(target.scrollHeight, 128) + 'px';
+          }}
+          onFocus={(e) => {
+            setTimeout(() => {
+              e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
           }}
         />
 

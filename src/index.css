@@ -108,6 +108,11 @@
       sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+  }
+
+  html {
+    overscroll-behavior: none;
   }
 }
 

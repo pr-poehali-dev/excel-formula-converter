@@ -294,8 +294,8 @@ export default function Index() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 to-transparent pt-6 pb-4">
-        <div className="container max-w-4xl mx-auto px-4 sm:px-6">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-slate-50 to-transparent pt-6 pb-safe">
+        <div className="container max-w-4xl mx-auto px-4 sm:px-6 pb-4">
           <ChatInput
             onSendMessage={handleSendMessage}
             onFileUpload={handleFileUpload}
