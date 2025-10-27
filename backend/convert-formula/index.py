@@ -110,6 +110,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'max_tokens': 800
         }).encode('utf-8')
         
+        proxy_handler = urllib.request.ProxyHandler({
+            'http': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323',
+            'https': 'http://14a32408394ec:c40a74951e@45.11.154.112:12323'
+        })
+        opener = urllib.request.build_opener(proxy_handler)
+        
         req = urllib.request.Request(
             'https://api.openai.com/v1/chat/completions',
             data=request_body,
@@ -120,7 +126,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             method='POST'
         )
         
-        with urllib.request.urlopen(req, timeout=30) as response:
+        with opener.open(req, timeout=30) as response:
             response_data = json.loads(response.read().decode('utf-8'))
         
         assistant_message = response_data['choices'][0]['message']['content']
