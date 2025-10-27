@@ -111,10 +111,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         request_body = json.dumps({
-            'model': 'gpt-4o-mini',
+            'model': 'gpt-5',
             'messages': messages,
-            'temperature': 0.7,
-            'max_tokens': 800
+            'max_completion_tokens': 800
         }).encode('utf-8')
         
         proxy_handler = urllib.request.ProxyHandler({
