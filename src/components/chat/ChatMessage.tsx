@@ -21,6 +21,9 @@ interface ChatMessageProps {
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const [copied, setCopied] = useState(false);
+  const [feedbackGiven, setFeedbackGiven] = useState(false);
+  const [showFeedbackForm, setShowFeedbackForm] = useState(false);
+  const [feedbackText, setFeedbackText] = useState('');
   const { toast } = useToast();
 
   const generateExampleData = useMemo(() => {
@@ -48,6 +51,30 @@ export function ChatMessage({ message }: ChatMessageProps) {
       title: 'Скопировано',
       description: 'Текст скопирован в буфер обмена',
     });
+  };
+
+  const handleFeedback = (isPositive: boolean) => {
+    setFeedbackGiven(true);
+    if (!isPositive) {
+      setShowFeedbackForm(true);
+    } else {
+      toast({
+        title: 'Спасибо за отзыв!',
+        description: 'Рады, что формула вам подошла',
+      });
+    }
+  };
+
+  const handleSubmitFeedback = () => {
+    if (feedbackText.trim()) {
+      console.log('Отзыв:', { messageId: message.id, feedback: feedbackText });
+      toast({
+        title: 'Спасибо за отзыв!',
+        description: 'Мы учтём ваше мнение',
+      });
+      setShowFeedbackForm(false);
+      setFeedbackText('');
+    }
   };
 
   if (message.role === 'user') {
@@ -150,6 +177,45 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {!feedbackGiven && (
+              <div className="mt-4 pt-3 border-t border-slate-100">
+                <p className="text-xs font-medium text-slate-600 mb-2">Формула помогла?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleFeedback(true)}
+                    className="flex-1 px-3 py-2 bg-green-50 hover:bg-green-100 text-green-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    👍 Да
+                  </button>
+                  <button
+                    onClick={() => handleFeedback(false)}
+                    className="flex-1 px-3 py-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-lg text-sm font-medium transition-colors"
+                  >
+                    👎 Нет
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {showFeedbackForm && (
+              <div className="mt-3 space-y-2">
+                <textarea
+                  value={feedbackText}
+                  onChange={(e) => setFeedbackText(e.target.value)}
+                  placeholder="Расскажите, что не подошло..."
+                  className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                />
+                <button
+                  onClick={handleSubmitFeedback}
+                  disabled={!feedbackText.trim()}
+                  className="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 text-white rounded-lg text-sm font-medium transition-colors"
+                >
+                  Отправить отзыв
+                </button>
               </div>
             )}
           </div>
