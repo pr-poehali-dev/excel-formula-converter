@@ -53,8 +53,25 @@ export function ChatMessage({ message }: ChatMessageProps) {
     });
   };
 
-  const handleFeedback = (isPositive: boolean) => {
+  const handleFeedback = async (isPositive: boolean) => {
     setFeedbackGiven(true);
+    
+    try {
+      await fetch('https://functions.poehali.dev/69208b5e-c033-48e8-bc9b-a909c3699cd2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messageId: message.id,
+          isPositive: isPositive,
+          feedbackText: ''
+        }),
+      });
+    } catch (error) {
+      console.error('Ошибка отправки отзыва:', error);
+    }
+    
     if (!isPositive) {
       setShowFeedbackForm(true);
     } else {
@@ -65,13 +82,33 @@ export function ChatMessage({ message }: ChatMessageProps) {
     }
   };
 
-  const handleSubmitFeedback = () => {
+  const handleSubmitFeedback = async () => {
     if (feedbackText.trim()) {
-      console.log('Отзыв:', { messageId: message.id, feedback: feedbackText });
-      toast({
-        title: 'Спасибо за отзыв!',
-        description: 'Мы учтём ваше мнение',
-      });
+      try {
+        await fetch('https://functions.poehali.dev/69208b5e-c033-48e8-bc9b-a909c3699cd2', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messageId: message.id,
+            isPositive: false,
+            feedbackText: feedbackText
+          }),
+        });
+        
+        toast({
+          title: 'Спасибо за отзыв!',
+          description: 'Мы учтём ваше мнение',
+        });
+      } catch (error) {
+        console.error('Ошибка отправки отзыва:', error);
+        toast({
+          title: 'Ошибка',
+          description: 'Не удалось отправить отзыв',
+          variant: 'destructive',
+        });
+      }
       setShowFeedbackForm(false);
       setFeedbackText('');
     }

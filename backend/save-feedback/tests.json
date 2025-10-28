@@ -1,0 +1,32 @@
+{
+  "tests": [
+    {
+      "name": "Save positive feedback",
+      "method": "POST",
+      "body": {
+        "messageId": "test-123",
+        "isPositive": true,
+        "feedbackText": ""
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Save negative feedback with text",
+      "method": "POST",
+      "body": {
+        "messageId": "test-456",
+        "isPositive": false,
+        "feedbackText": "Formula didn't work for my data"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
