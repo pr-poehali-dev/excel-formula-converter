@@ -26,7 +26,7 @@ export default function Index() {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [excelData, setExcelData] = useState<any>(null);
   const [showSubscriptionDialog, setShowSubscriptionDialog] = useState(false);
-  const [queriesRemaining, setQueriesRemaining] = useState(15);
+  const [queriesRemaining, setQueriesRemaining] = useState(5);
   const [isPremium, setIsPremium] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -237,13 +237,13 @@ export default function Index() {
       <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
         <PageHeader />
 
-        {!isPremium && queriesRemaining < 15 && (
+        {!isPremium && queriesRemaining < 5 && (
           <div className="mb-4 p-3 sm:p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 flex-1 overflow-hidden">
                 <Icon name="AlertCircle" size={16} className="text-amber-600 flex-shrink-0" />
                 <span className="text-xs sm:text-sm text-slate-700 truncate">
-                  <strong>Осталось: {queriesRemaining}</strong> из 15
+                  <strong>Осталось: {queriesRemaining}</strong> из 5
                 </span>
               </div>
               <button
