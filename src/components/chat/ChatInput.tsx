@@ -38,6 +38,14 @@ export function ChatInput({ onSendMessage, onFileUpload, onClearChat, isLoading,
 
   return (
     <div className="space-y-2">
+      {!hasMessages && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-slate-600 flex items-start gap-2">
+          <Icon name="Info" size={18} className="text-blue-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <span className="font-medium text-slate-700">Подсказка:</span> Если запрос неясен, приложите Excel файл с данными — это поможет дать точный ответ быстрее
+          </div>
+        </div>
+      )}
       <div className="flex items-end gap-1.5 sm:gap-2 bg-white rounded-2xl shadow-lg border-2 border-blue-300 p-1.5 sm:p-2 sm:animate-pulse-glow">
         <button
           onClick={() => fileInputRef.current?.click()}
