@@ -121,7 +121,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         request_body = json.dumps({
-            'model': 'gpt-4o-mini',
+            'model': 'gpt-5-nano',
             'messages': messages
         }).encode('utf-8')
         
