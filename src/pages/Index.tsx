@@ -145,6 +145,12 @@ export default function Index() {
 
     } catch (error) {
       console.error('Ошибка запроса:', error);
+      
+      // Отправка метрики в Яндекс.Метрику
+      if (typeof window !== 'undefined' && (window as any).ym) {
+        (window as any).ym(104845386, 'reachGoal', 'gen_error');
+      }
+      
       toast({
         title: 'Ошибка',
         description: error instanceof Error ? error.message : 'Не удалось обработать запрос',
