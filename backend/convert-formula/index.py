@@ -121,7 +121,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     try:
         request_body = json.dumps({
-            'model': 'gpt-5-nano',
+            'model': 'gpt-5',
             'messages': messages,
             'reasoning_effort': 'minimal',
             'max_completion_tokens': 800
