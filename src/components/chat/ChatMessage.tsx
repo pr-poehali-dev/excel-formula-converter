@@ -125,32 +125,51 @@ export function ChatMessage({ message }: ChatMessageProps) {
   }
 
   const formatContent = (content: string) => {
-    const lines = content.split('\n');
     const formatted: JSX.Element[] = [];
+    const textParts = content.split(/(\d+\))/g);
     
-    lines.forEach((line, index) => {
-      const trimmed = line.trim();
-      
-      if (/^\d+[\.\)]\s/.test(trimmed)) {
-        formatted.push(
-          <div key={index} className="flex gap-2 my-1.5">
-            <span className="font-semibold text-blue-600 flex-shrink-0">{trimmed.match(/^\d+[\.\)]/)?.[0]}</span>
-            <span>{trimmed.replace(/^\d+[\.\)]\s*/, '')}</span>
-          </div>
-        );
-      } else if (/^[-•]\s/.test(trimmed)) {
-        formatted.push(
-          <div key={index} className="flex gap-2 my-1 ml-2">
-            <span className="text-blue-600 flex-shrink-0">•</span>
-            <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
-          </div>
-        );
-      } else if (trimmed.length > 0) {
-        formatted.push(<div key={index} className="my-1">{line}</div>);
-      } else {
-        formatted.push(<div key={index} className="h-2" />);
-      }
-    });
+    if (textParts.length > 3) {
+      let currentIndex = 0;
+      textParts.forEach((part, idx) => {
+        if (/^\d+\)$/.test(part)) {
+          const nextPart = textParts[idx + 1] || '';
+          formatted.push(
+            <div key={currentIndex++} className="flex gap-2 my-2">
+              <span className="font-semibold text-blue-600 flex-shrink-0">{part}</span>
+              <span>{nextPart.trim()}</span>
+            </div>
+          );
+          textParts[idx + 1] = '';
+        } else if (part && part.trim() && !textParts[idx - 1]?.match(/^\d+\)$/)) {
+          formatted.push(<div key={currentIndex++} className="my-1">{part.trim()}</div>);
+        }
+      });
+    } else {
+      const lines = content.split('\n');
+      lines.forEach((line, index) => {
+        const trimmed = line.trim();
+        
+        if (/^\d+[\.\)]\s/.test(trimmed)) {
+          formatted.push(
+            <div key={index} className="flex gap-2 my-1.5">
+              <span className="font-semibold text-blue-600 flex-shrink-0">{trimmed.match(/^\d+[\.\)]/)?.[0]}</span>
+              <span>{trimmed.replace(/^\d+[\.\)]\s*/, '')}</span>
+            </div>
+          );
+        } else if (/^[-•]\s/.test(trimmed)) {
+          formatted.push(
+            <div key={index} className="flex gap-2 my-1 ml-2">
+              <span className="text-blue-600 flex-shrink-0">•</span>
+              <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
+            </div>
+          );
+        } else if (trimmed.length > 0) {
+          formatted.push(<div key={index} className="my-1">{line}</div>);
+        } else {
+          formatted.push(<div key={index} className="h-2" />);
+        }
+      });
+    }
     
     return formatted;
   };
