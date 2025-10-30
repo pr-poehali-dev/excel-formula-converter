@@ -126,23 +126,28 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   const formatContent = (content: string) => {
     const formatted: JSX.Element[] = [];
-    const textParts = content.split(/(\d+\))/g);
+    const listItemPattern = /(\d+\))\s+/g;
+    const matches = Array.from(content.matchAll(listItemPattern));
     
-    if (textParts.length > 3) {
+    if (matches.length >= 2) {
       let currentIndex = 0;
-      textParts.forEach((part, idx) => {
-        if (/^\d+\)$/.test(part)) {
-          const nextPart = textParts[idx + 1] || '';
-          formatted.push(
-            <div key={currentIndex++} className="flex gap-2 my-2">
-              <span className="font-semibold text-blue-600 flex-shrink-0">{part}</span>
-              <span>{nextPart.trim()}</span>
-            </div>
-          );
-          textParts[idx + 1] = '';
-        } else if (part && part.trim() && !textParts[idx - 1]?.match(/^\d+\)$/)) {
-          formatted.push(<div key={currentIndex++} className="my-1">{part.trim()}</div>);
-        }
+      
+      const beforeFirstItem = content.substring(0, matches[0].index);
+      if (beforeFirstItem.trim()) {
+        formatted.push(<div key={currentIndex++} className="mb-2">{beforeFirstItem.trim()}</div>);
+      }
+      
+      matches.forEach((match, idx) => {
+        const start = match.index! + match[0].length;
+        const end = matches[idx + 1]?.index ?? content.length;
+        const itemText = content.substring(start, end).trim();
+        
+        formatted.push(
+          <div key={currentIndex++} className="flex gap-2 my-2">
+            <span className="font-semibold text-blue-600 flex-shrink-0">{match[1]}</span>
+            <span>{itemText}</span>
+          </div>
+        );
       });
     } else {
       const lines = content.split('\n');
