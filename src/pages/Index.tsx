@@ -120,7 +120,7 @@ export default function Index() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: data.explanation || data.formula,
+        content: data.explanation || '',
         formula: data.formula,
         functions: data.functions || [],
         example: data.example || undefined,
