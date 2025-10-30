@@ -126,55 +126,33 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   const formatContent = (content: string) => {
     const formatted: JSX.Element[] = [];
-    const listItemPattern = /(\d+\))\s+/g;
-    const matches = Array.from(content.matchAll(listItemPattern));
+    const lines = content.split('\n');
     
-    if (matches.length >= 2) {
-      let currentIndex = 0;
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
       
-      const beforeFirstItem = content.substring(0, matches[0].index);
-      if (beforeFirstItem.trim()) {
-        formatted.push(<div key={currentIndex++} className="mb-2">{beforeFirstItem.trim()}</div>);
-      }
-      
-      matches.forEach((match, idx) => {
-        const start = match.index! + match[0].length;
-        const end = matches[idx + 1]?.index ?? content.length;
-        const itemText = content.substring(start, end).trim();
-        
+      if (/^\d+[\.\)]\s/.test(trimmed)) {
         formatted.push(
-          <div key={currentIndex++} className="flex gap-2 my-2">
-            <span className="font-semibold text-blue-600 flex-shrink-0">{match[1]}</span>
-            <span>{itemText}</span>
+          <div key={index} className="flex gap-2 my-2 items-start">
+            <span className="font-bold text-blue-600 flex-shrink-0 text-base">{trimmed.match(/^\d+[\.\)]/)?.[0]}</span>
+            <span className="leading-relaxed">{trimmed.replace(/^\d+[\.\)]\s*/, '')}</span>
           </div>
         );
-      });
-    } else {
-      const lines = content.split('\n');
-      lines.forEach((line, index) => {
-        const trimmed = line.trim();
-        
-        if (/^\d+[\.\)]\s/.test(trimmed)) {
-          formatted.push(
-            <div key={index} className="flex gap-2 my-1.5">
-              <span className="font-semibold text-blue-600 flex-shrink-0">{trimmed.match(/^\d+[\.\)]/)?.[0]}</span>
-              <span>{trimmed.replace(/^\d+[\.\)]\s*/, '')}</span>
-            </div>
-          );
-        } else if (/^[-•]\s/.test(trimmed)) {
-          formatted.push(
-            <div key={index} className="flex gap-2 my-1 ml-2">
-              <span className="text-blue-600 flex-shrink-0">•</span>
-              <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
-            </div>
-          );
-        } else if (trimmed.length > 0) {
-          formatted.push(<div key={index} className="my-1">{line}</div>);
-        } else {
-          formatted.push(<div key={index} className="h-2" />);
-        }
-      });
-    }
+      } else if (/^[-•]\s/.test(trimmed)) {
+        formatted.push(
+          <div key={index} className="flex gap-2 my-1.5 ml-4 items-start">
+            <span className="text-blue-600 flex-shrink-0 text-base">•</span>
+            <span className="leading-relaxed">{trimmed.replace(/^[-•]\s*/, '')}</span>
+          </div>
+        );
+      } else if (trimmed.length > 0) {
+        formatted.push(
+          <div key={index} className="my-1.5 leading-relaxed">{line}</div>
+        );
+      } else {
+        formatted.push(<div key={index} className="h-3" />);
+      }
+    });
     
     return formatted;
   };
