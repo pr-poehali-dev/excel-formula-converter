@@ -124,12 +124,43 @@ export function ChatMessage({ message }: ChatMessageProps) {
     );
   }
 
+  const formatContent = (content: string) => {
+    const lines = content.split('\n');
+    const formatted: JSX.Element[] = [];
+    
+    lines.forEach((line, index) => {
+      const trimmed = line.trim();
+      
+      if (/^\d+[\.\)]\s/.test(trimmed)) {
+        formatted.push(
+          <div key={index} className="flex gap-2 my-1.5">
+            <span className="font-semibold text-blue-600 flex-shrink-0">{trimmed.match(/^\d+[\.\)]/)?.[0]}</span>
+            <span>{trimmed.replace(/^\d+[\.\)]\s*/, '')}</span>
+          </div>
+        );
+      } else if (/^[-•]\s/.test(trimmed)) {
+        formatted.push(
+          <div key={index} className="flex gap-2 my-1 ml-2">
+            <span className="text-blue-600 flex-shrink-0">•</span>
+            <span>{trimmed.replace(/^[-•]\s*/, '')}</span>
+          </div>
+        );
+      } else if (trimmed.length > 0) {
+        formatted.push(<div key={index} className="my-1">{line}</div>);
+      } else {
+        formatted.push(<div key={index} className="h-2" />);
+      }
+    });
+    
+    return formatted;
+  };
+
   return (
     <div className="flex justify-start">
       <div className="max-w-[90%] sm:max-w-[85%] bg-white rounded-2xl px-3 sm:px-4 py-2.5 sm:py-3 shadow-sm border border-slate-100">
-        <p className="text-sm text-slate-700 whitespace-pre-wrap break-words">
-          {message.content}
-        </p>
+        <div className="text-sm text-slate-700 break-words">
+          {formatContent(message.content)}
+        </div>
 
         {message.formula && (
           <div className="mt-3 pt-3 border-t border-slate-100">
